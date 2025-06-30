@@ -1,34 +1,57 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>必应壁纸</title>
+    <title>每日必应壁纸</title>
     <style>
         html, body {
             height: 100%;
             margin: 0;
-            overflow: hidden;
+            background-color: #000;
         }
         #wallpaper {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            display: block;
+        }
+        #status {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            font-family: sans-serif;
+            background: rgba(0,0,0,0.5);
+            padding: 8px 12px;
+            border-radius: 8px;
         }
     </style>
 </head>
 <body>
-    <img id="wallpaper" alt="必应壁纸" onerror="this.src='https://via.placeholder.com/1920x1080?text=壁纸加载失败'">
-    
+    <div id="status">正在加载壁纸...</div>
+    <img id="wallpaper" alt="必应壁纸" src="" onerror="handleImageError()">
+
     <script>
-        // 必应壁纸API（获取今日壁纸）
+        function handleImageError() {
+            document.getElementById('wallpaper').src = "https://via.placeholder.com/1920x1080?text=壁纸加载失败";
+            document.getElementById('status').textContent = "壁纸加载失败，已显示占位图";
+        }
+
         fetch('https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN')
             .then(res => res.json())
             .then(data => {
                 if (data.images && data.images[0]) {
-                    const imgUrl = `https://www.bing.com${data.images[0].url}`;
+                    const imgUrl = "https://www.bing.com" + data.images[0].url;
                     document.getElementById('wallpaper').src = imgUrl;
+                    document.getElementById('status').textContent = "壁纸加载成功";
+                    console.log("壁纸地址：", imgUrl);
+                } else {
+                    throw new Error("没有获取到壁纸数据");
                 }
+            })
+            .catch(err => {
+                console.error("请求壁纸失败：", err);
+                handleImageError();
             });
     </script>
 </body>
