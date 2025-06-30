@@ -113,7 +113,7 @@
 
   <script>
     // 原始稳定接口：bing.biturl.top（无需额外代理）
-    const BING_API = (index) => `https://bing.biturl.top/?resolution=1920&format=image&index=${index}&mkt=zh-CN`;
+    const BING_API = (index) => https://bing.biturl.top/?resolution=1920&format=image&index=${index}&mkt=zh-CN;
 
     // DOM元素
     const bannerImg = document.getElementById('banner-img');
@@ -126,7 +126,7 @@
     async function loadWallpaper(index, isBanner = false) {
       try {
         // 请求壁纸信息（接口直接返回图片URL和版权信息）
-        const response = await fetch(`https://bing.biturl.top/?format=json&index=${index}&mkt=zh-CN`);
+        const response = await fetch(https://bing.biturl.top/?format=json&index=${index}&mkt=zh-CN);
         const data = await response.json();
         
         if (!data.url || !data.copyright) return;
@@ -170,11 +170,11 @@
       const today = new Date();
       for (let year = today.getFullYear(); year >= today.getFullYear() - 2; year--) {
         for (let month = 12; month >= 1; month--) {
-          const monthStr = `${year}-${String(month).padStart(2, '0')}`;
+          const monthStr = ${year}-${String(month).padStart(2, '0')};
           const btn = document.createElement('button');
           btn.className = 'archive-btn';
           btn.textContent = monthStr;
-          btn.onclick = () => alert(`即将加载${monthStr}壁纸（需扩展历史逻辑）`);
+          btn.onclick = () => alert(即将加载${monthStr}壁纸（需扩展历史逻辑）);
           archiveButtons.appendChild(btn);
         }
       }
@@ -184,3 +184,4 @@
   </script>
 </body>
 </html>
+
