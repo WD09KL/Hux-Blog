@@ -1,99 +1,214 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>必应壁纸画廊</title>
   <style>
+    * {
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box;
+    }
     body {
-      margin: 0;
-      font-family: sans-serif;
-      background: #111;
-      color: #fff;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f5f5f5;
+      color: #333;
     }
     header {
       text-align: center;
-      padding: 1.5rem 0;
-      background: #000;
-      border-bottom: 1px solid #333;
+      padding: 1.5rem;
+      background: #fff;
+      border-bottom: 1px solid #eee;
     }
-    h1 {
-      margin: 0;
-      font-size: 1.8rem;
+    .banner {
+      position: relative;
+      height: 60vh;
+      overflow: hidden;
+    }
+    .banner-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: brightness(0.8);
+    }
+    .banner-info {
+      position: absolute;
+      bottom: 2rem;
+      left: 2rem;
+      color: #fff;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    }
+    .btn-download {
+      display: inline-block;
+      margin-top: 0.5rem;
+      padding: 0.6rem 1.2rem;
+      background: #fff;
+      color: #0078d7;
+      text-decoration: none;
+      border-radius: 6px;
+      transition: background 0.3s;
+    }
+    .btn-download:hover {
+      background: #e6f2ff;
     }
     .gallery {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-      gap: 1.5rem;
       padding: 2rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
     }
     .card {
-      background: #1e1e1e;
+      background: #fff;
       border-radius: 10px;
       overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-      display: flex;
-      flex-direction: column;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transition: transform 0.3s;
     }
-    .card img {
+    .card:hover {
+      transform: translateY(-5px);
+    }
+    .card-img {
       width: 100%;
-      aspect-ratio: 16 / 9;
+      aspect-ratio: 16/9;
       object-fit: cover;
-      border-bottom: 1px solid #333;
+      border-bottom: 1px solid #eee;
     }
     .card-content {
       padding: 1rem;
-      flex-grow: 1;
+    }
+    .archive {
+      padding: 2rem;
+      background: #fff;
+      border-top: 1px solid #eee;
+    }
+    .archive h2 {
+      margin-bottom: 1.5rem;
+      font-size: 1.2rem;
+      color: #666;
+    }
+    .archive-buttons {
       display: flex;
-      flex-direction: column;
-      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
     }
-    .card-content h3 {
-      margin: 0 0 0.5rem;
-      font-size: 1rem;
-      color: #ccc;
-    }
-    .btn {
-      background: #0078d7;
-      color: white;
-      text-decoration: none;
+    .archive-btn {
       padding: 0.5rem 1rem;
+      background: #f0f0f0;
+      border: none;
       border-radius: 6px;
-      font-size: 0.9rem;
-      transition: background 0.2s;
-      width: fit-content;
+      cursor: pointer;
+      transition: background 0.3s;
     }
-    .btn:hover {
-      background: #1494ed;
+    .archive-btn:hover {
+      background: #e6f2ff;
+      color: #0078d7;
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>📸 最近 7 天必应壁纸</h1>
+    <h1>必应壁纸画廊</h1>
+    <p>近7日精选 & 历史归档</p>
   </header>
 
-  <div class="gallery" id="gallery"></div>
+  <!-- 顶部横幅（今日壁纸） -->
+  <section class="banner" id="banner">
+    <img src="" alt="今日壁纸" class="banner-img" id="bannerImg" />
+    <div class="banner-info">
+      <h2 id="bannerTitle">加载中...</h2>
+      <a href="#" target="_blank" class="btn-download" id="bannerDownload">下载4K</a>
+    </div>
+  </section>
+
+  <!-- 近期壁纸列表 -->
+  <section class="gallery" id="gallery"></section>
+
+  <!-- 月份归档 -->
+  <section class="archive">
+    <h2>按月份查看</h2>
+    <div class="archive-buttons" id="archiveButtons">
+      <!-- 动态生成月份按钮 -->
+    </div>
+  </section>
 
   <script>
-    const gallery = document.getElementById("gallery");
-
-    for (let i = 0; i < 7; i++) {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      const ymd = date.toISOString().split("T")[0];
-      const imgUrl = `https://bing.biturl.top/?resolution=1920&format=image&index=${i}&mkt=zh-CN`;
-
-      const card = document.createElement("div");
-      card.className = "card";
-      card.innerHTML = `
-        <img src="${imgUrl}" alt="必应壁纸 ${ymd}">
-        <div class="card-content">
-          <h3>📅 ${ymd}</h3>
-          <a class="btn" href="${imgUrl}" download="bing_${ymd}.jpg">⬇ 下载 4K 壁纸</a>
-        </div>
-      `;
-      gallery.appendChild(card);
+    // 必应API（通过代理解决跨域）
+    const BING_API = (idx) => `https://api.allorigins.win/get?url=https://www.bing.com/HPImageArchive.aspx?format=js&idx=${idx}&n=1&mkt=zh-CN`;
+    
+    // 初始化月份归档（近2年）
+    const archiveMonths = [];
+    const today = new Date();
+    for (let y = today.getFullYear(); y >= today.getFullYear() - 2; y--) {
+      for (let m = 12; m >= 1; m--) {
+        archiveMonths.push(`${y}-${String(m).padStart(2, '0')}`);
+      }
     }
+
+    // DOM元素
+    const bannerImg = document.getElementById('bannerImg');
+    const bannerTitle = document.getElementById('bannerTitle');
+    const bannerDownload = document.getElementById('bannerDownload');
+    const gallery = document.getElementById('gallery');
+    const archiveButtons = document.getElementById('archiveButtons');
+
+    // 加载壁纸（通用函数）
+    async function loadWallpaper(idx, isBanner = false) {
+      try {
+        const response = await fetch(BING_API(idx));
+        const proxyData = await response.json();
+        const data = JSON.parse(proxyData.contents);
+        
+        if (!data.images || data.images.length === 0) return;
+        const { url, copyright, startdate } = data.images[0];
+        const fullUrl = `https://www.bing.com${url}`;
+        const downloadUrl = fullUrl.replace("/1920x1080", "/UHD"); // 4K地址
+        
+        if (isBanner) {
+          bannerImg.src = fullUrl;
+          bannerTitle.textContent = copyright;
+          bannerDownload.href = downloadUrl;
+        } else {
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `
+            <img src="${fullUrl}" alt="${startdate}" class="card-img" />
+            <div class="card-content">
+              <p class="text-sm text-gray">${startdate}</p>
+              <p>${copyright}</p>
+              <a href="${downloadUrl}" class="btn-download" target="_blank">下载4K</a>
+            </div>
+          `;
+          gallery.appendChild(card);
+        }
+      } catch (error) {
+        console.error('加载失败:', error);
+      }
+    }
+
+    // 初始化页面
+    async function init() {
+      // 加载今日壁纸（banner）
+      await loadWallpaper(0, true);
+      
+      // 加载近6日壁纸（idx=1~6）
+      for (let i = 1; i < 7; i++) {
+        await loadWallpaper(i);
+      }
+      
+      // 生成归档按钮
+      archiveMonths.forEach(month => {
+        const btn = document.createElement('button');
+        btn.className = 'archive-btn';
+        btn.textContent = month;
+        btn.addEventListener('click', () => {
+          alert(`即将加载${month}壁纸（需扩展历史数据逻辑）`);
+        });
+        archiveButtons.appendChild(btn);
+      });
+    }
+
+    init();
   </script>
 </body>
 </html>
