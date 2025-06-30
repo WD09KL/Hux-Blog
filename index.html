@@ -100,7 +100,7 @@
     }, { threshold: 0.1 });
 
     async function loadTodayWallpaper() {
-      const res = await fetch(`https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN`);
+      const res = await fetch(`https://cn.bing.com/?PC=EMMX01`);
       const data = await res.json();
       const img = data.images[0];
       const base = "https://www.bing.com";
