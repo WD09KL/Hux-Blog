@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8" />
-  <title>每日壁纸 · 极简版</title>
+  <title>自动壁纸切换</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     html, body {
@@ -10,81 +10,83 @@
       height: 100%;
       background-size: cover;
       background-position: center;
-      font-family: Arial, sans-serif;
-      color: #fff;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      background-color: #000;
+      font-family: sans-serif;
+      overflow: hidden;
     }
-    .overlay {
-      background-color: rgba(0, 0, 0, 0.35);
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
-    }
-    .container {
-      position: relative;
-      z-index: 1;
-    }
-    h1 {
-      font-size: 2em;
-    }
-    button {
-      margin: 0.5em;
+    .btn {
+      position: fixed;
       padding: 10px 16px;
-      font-size: 1em;
+      font-size: 16px;
       border: none;
       border-radius: 8px;
-      cursor: pointer;
-      background-color: rgba(255,255,255,0.2);
+      background-color: rgba(0,0,0,0.4);
       color: white;
+      cursor: pointer;
+      z-index: 10;
     }
-    button:hover {
-      background-color: rgba(255,255,255,0.4);
+    .btn:hover {
+      background-color: rgba(0,0,0,0.6);
     }
-    a {
-      text-decoration: none;
+    #refreshBtn {
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    #downloadBtn {
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    #caption {
+      position: fixed;
+      bottom: 20px;
+      width: 100%;
+      text-align: center;
+      color: white;
+      text-shadow: 0 0 5px black;
+      font-size: 1em;
+      z-index: 5;
     }
   </style>
 </head>
 <body>
-  <div class="overlay"></div>
-  <div class="container">
-    <h1>必应每日壁纸</h1>
-    <p id="caption">加载中...</p>
-    <div>
-      <button onclick="loadWallpaper()">🔄 手动刷新</button>
-      <a id="downloadLink" target="_blank">
-        <button>📥 下载4K原图</button>
-      </a>
-    </div>
-  </div>
+  <button id="refreshBtn" class="btn" onclick="loadWallpaper()">🔄 刷新</button>
+  <a id="downloadBtn" class="btn" download target="_blank">📥 下载</a>
+  <div id="caption">加载中...</div>
 
   <script>
-    let fullResUrl = "";
+    const caption = document.getElementById("caption");
+    const downloadBtn = document.getElementById("downloadBtn");
+
+    const apis = [
+      { name: "搏天风景", url: "https://api.btstu.cn/sjbz/api.php?lx=fengjing&format=json", key: "imgurl" },
+      { name: "小歪高清", url: "https://api.ixiaowai.cn/gqapi/gqapi.php?return=json", key: "imgurl" },
+      { name: "LikePoems", url: "https://likepoems.com/api/img/pc?return=json", key: "imgurl" },
+      { name: "360壁纸", url: "https://api.dujin.org/bing/1920.php?json", key: "url" }
+    ];
+
+    let currentIndex = 0;
 
     function loadWallpaper() {
-      fetch("https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN&uhd=1&uhdwidth=3840&uhdheight=2160")
-        .then(r => r.json())
-        .then(d => {
-          const img = d.images[0];
-          const base = "https://www.bing.com";
-          const wallpaperUrl = base + img.url;
-          fullResUrl = base + img.urlbase + "_UHD.jpg";
-          document.body.style.backgroundImage = `url('${wallpaperUrl}')`;
-          document.getElementById("downloadLink").href = fullResUrl;
-          document.getElementById("caption").innerText = img.copyright || "Bing 今日美图";
+      const api = apis[currentIndex % apis.length];
+      fetch(api.url)
+        .then(res => res.json())
+        .then(data => {
+          const imgUrl = data[api.key];
+          document.body.style.backgroundImage = `url('${imgUrl}')`;
+          downloadBtn.href = imgUrl;
+          caption.innerText = `来源：${api.name}`;
         })
-        .catch(err => {
-          document.getElementById("caption").innerText = "加载失败，请稍后重试";
-          console.error(err);
+        .catch(() => {
+          caption.innerText = "加载失败，请稍后重试";
         });
+      currentIndex++;
     }
 
-    window.onload = loadWallpaper;
+    window.onload = () => {
+      loadWallpaper();
+      setInterval(loadWallpaper, 60000); // 每分钟自动切换
+    };
   </script>
 </body>
 </html>
