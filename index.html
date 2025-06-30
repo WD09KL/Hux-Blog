@@ -2,91 +2,94 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8" />
-  <title>自动壁纸切换</title>
+  <title>Bing 壁纸 · 月度展示</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    html, body {
+    body {
       margin: 0;
-      height: 100%;
+      font-family: sans-serif;
+      background-color: #000;
+      color: #fff;
+    }
+    .hero {
+      height: 60vh;
       background-size: cover;
       background-position: center;
-      font-family: sans-serif;
-      overflow: hidden;
+      position: relative;
     }
-    .btn {
-      position: fixed;
-      padding: 10px 16px;
-      font-size: 16px;
-      border: none;
-      border-radius: 8px;
-      background-color: rgba(0,0,0,0.4);
-      color: white;
-      cursor: pointer;
-      z-index: 10;
+    .hero-caption {
+      position: absolute;
+      bottom: 10px;
+      left: 20px;
+      background: rgba(0,0,0,0.5);
+      padding: 10px;
+      border-radius: 6px;
     }
-    .btn:hover {
-      background-color: rgba(0,0,0,0.6);
+    .gallery {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 1em;
+      gap: 10px;
+      background: #111;
     }
-    #refreshBtn {
-      left: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-    }
-    #downloadBtn {
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-    }
-    #caption {
-      position: fixed;
-      bottom: 20px;
-      width: 100%;
+    .thumb {
+      width: 200px;
       text-align: center;
-      color: white;
-      text-shadow: 0 0 5px black;
-      font-size: 1em;
-      z-index: 5;
+    }
+    .thumb img {
+      width: 100%;
+      border-radius: 6px;
+      transition: transform 0.3s;
+    }
+    .thumb img:hover {
+      transform: scale(1.05);
+    }
+    a {
+      color: #0f0;
+      text-decoration: none;
     }
   </style>
 </head>
 <body>
-  <button id="refreshBtn" class="btn" onclick="loadWallpaper()">🔄 刷新</button>
-  <a id="downloadBtn" class="btn" download target="_blank">📥 下载</a>
-  <div id="caption">加载中...</div>
+  <div class="hero" id="hero">
+    <div class="hero-caption" id="heroCaption">加载中...</div>
+  </div>
+  <div class="gallery" id="gallery"></div>
 
   <script>
-    const caption = document.getElementById("caption");
-    const downloadBtn = document.getElementById("downloadBtn");
+    const hero = document.getElementById("hero");
+    const caption = document.getElementById("heroCaption");
+    const gallery = document.getElementById("gallery");
 
-    const apis = [
-      { name: "搏天风景", url: "https://api.btstu.cn/sjbz/api.php?lx=fengjing&format=json", key: "imgurl" },
-      { name: "小歪高清", url: "https://api.ixiaowai.cn/gqapi/gqapi.php?return=json", key: "imgurl" },
-      { name: "LikePoems", url: "https://likepoems.com/api/img/pc?return=json", key: "imgurl" },
-      { name: "360壁纸", url: "https://api.dujin.org/bing/1920.php?json", key: "url" }
-    ];
+    async function loadWallpapers() {
+      for (let i = 0; i < 30; i++) {
+        const res = await fetch(`https://www.bing.com/HPImageArchive.aspx?format=js&idx=${i}&n=1&mkt=zh-CN`);
+        const data = await res.json();
+        const img = data.images[0];
+        const base = "https://www.bing.com";
+        const full = base + img.urlbase + "_UHD.jpg";
+        const thumb = base + img.urlbase + "_480x270.jpg";
+        const title = img.copyright;
 
-    let currentIndex = 0;
-
-    function loadWallpaper() {
-      const api = apis[currentIndex % apis.length];
-      fetch(api.url)
-        .then(res => res.json())
-        .then(data => {
-          const imgUrl = data[api.key];
-          document.body.style.backgroundImage = `url('${imgUrl}')`;
-          downloadBtn.href = imgUrl;
-          caption.innerText = `来源：${api.name}`;
-        })
-        .catch(() => {
-          caption.innerText = "加载失败，请稍后重试";
-        });
-      currentIndex++;
+        if (i === 0) {
+          hero.style.backgroundImage = `url('${base + img.url}')`;
+          caption.innerText = title;
+        } else {
+          const div = document.createElement("div");
+          div.className = "thumb";
+          div.innerHTML = `
+            <a href="${full}" target="_blank">
+              <img src="${thumb}" alt="${title}" />
+            </a>
+            <p>${title}</p>
+          `;
+          gallery.appendChild(div);
+        }
+      }
     }
 
-    window.onload = () => {
-      loadWallpaper();
-      setInterval(loadWallpaper, 60000); // 每分钟自动切换
-    };
+    loadWallpapers();
   </script>
 </body>
 </html>
