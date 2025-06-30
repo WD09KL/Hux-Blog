@@ -1,44 +1,92 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <title>每日必应壁纸</title>
-    <style>
-        html, body {
-            margin: 0;
-            height: 100%;
-            background-color: #000;
-        }
-        #wallpaper {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-        #status {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            color: white;
-            font-family: sans-serif;
-            background: rgba(0,0,0,0.5);
-            padding: 8px 12px;
-            border-radius: 8px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>每日必应壁纸</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      background-color: #000;
+    }
+    #wallpaper {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    #controls {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      display: flex;
+      gap: 12px;
+    }
+    .btn {
+      background: rgba(0,0,0,0.5);
+      color: white;
+      font-family: sans-serif;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background: rgba(255,255,255,0.2);
+    }
+  </style>
 </head>
 <body>
-    <div id="status">正在加载壁纸...</div>
-    <img id="wallpaper" alt="必应壁纸" src="https://api.dujin.org/bing/1920.php" onload="loaded()" onerror="handleImageError()">
+  <div id="controls">
+    <button class="btn" onclick="prevImage()">⬅ 上一张</button>
+    <button class="btn" onclick="downloadImage()">⬇ 下载</button>
+    <div id="status" class="btn">加载中...</div>
+  </div>
+  <img id="wallpaper" src="" alt="必应壁纸" onload="loaded()" onerror="handleError()">
 
-    <script>
-        function loaded() {
-            document.getElementById('status').textContent = "壁纸加载成功 🎉";
-        }
-        function handleImageError() {
-            document.getElementById('wallpaper').src = "https://via.placeholder.com/1920x1080?text=壁纸加载失败";
-            document.getElementById('status').textContent = "壁纸加载失败，已显示占位图";
-        }
-    </script>
+  <script>
+    let index = 0;
+
+    function getImageUrl(idx) {
+      return `https://bing.biturl.top/?resolution=1920&format=image&index=${idx}&mkt=zh-CN`;
+    }
+
+    function updateImage() {
+      const url = getImageUrl(index);
+      document.getElementById("wallpaper").src = url;
+      document.getElementById("status").textContent = `第 ${index + 1} 张（${idxToDate(index)}）`;
+    }
+
+    function idxToDate(idx) {
+      const today = new Date();
+      today.setDate(today.getDate() - idx);
+      return today.toISOString().split("T")[0];
+    }
+
+    function prevImage() {
+      index = (index + 1) % 7; // 最多7天历史
+      updateImage();
+    }
+
+    function downloadImage() {
+      const url = getImageUrl(index);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `bing_wallpaper_${idxToDate(index)}.jpg`;
+      link.click();
+    }
+
+    function loaded() {
+      document.getElementById("status").textContent = `壁纸加载成功 ✅`;
+    }
+
+    function handleError() {
+      document.getElementById("wallpaper").src = "https://via.placeholder.com/1920x1080?text=加载失败";
+      document.getElementById("status").textContent = "加载失败 ❌";
+    }
+
+    // 初次加载
+    updateImage();
+  </script>
 </body>
 </html>
