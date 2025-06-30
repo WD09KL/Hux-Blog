@@ -1,131 +1,95 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-  <meta charset="UTF-8">
-  <title>Bing 壁纸月度画廊</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>Bing 壁纸 · 多地区支持</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    html, body {
+    body {
       margin: 0;
       font-family: sans-serif;
-      background-color: #000;
+      background-color: #111;
       color: #fff;
-      overflow-x: hidden;
     }
-    .hero {
-      height: 60vh;
-      background-size: cover;
-      background-position: center;
-      position: relative;
+    header {
+      padding: 1em;
+      text-align: center;
+      background: #222;
     }
-    .hero-caption {
-      position: absolute;
-      bottom: 10px;
-      left: 20px;
-      background: rgba(0,0,0,0.5);
-      padding: 10px;
-      border-radius: 6px;
-      font-size: 1rem;
-      max-width: 90%;
+    select {
+      padding: 0.5em;
+      font-size: 1em;
+      margin-top: 0.5em;
     }
     .gallery {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      padding: 20px;
       gap: 16px;
-      background-color: #111;
+      padding: 1em;
     }
-    .thumb {
-      width: 200px;
+    .card {
+      width: 300px;
+      background: #1a1a1a;
+      border-radius: 8px;
+      overflow: hidden;
       text-align: center;
     }
-    .thumb img {
+    .card img {
       width: 100%;
-      border-radius: 6px;
-      background-color: #333;
-      min-height: 120px;
-      object-fit: cover;
-      filter: blur(6px);
-      transition: filter 0.3s ease;
+      display: block;
     }
-    .thumb img.loaded {
-      filter: none;
+    .card p {
+      padding: 0.5em;
+      font-size: 0.9em;
     }
-    a {
+    .card a {
+      display: inline-block;
+      margin-bottom: 1em;
       color: #0f0;
-      font-size: 0.9em;
       text-decoration: none;
-    }
-    .caption-text {
-      font-size: 0.9em;
-      margin-top: 0.3em;
     }
   </style>
 </head>
 <body>
-  <div class="hero" id="hero">
-    <div class="hero-caption" id="heroCaption">加载中...</div>
-  </div>
-  <div class="gallery" id="gallery"></div>
+  <header>
+    <h1>Bing 每日壁纸</h1>
+    <label for="region">选择地区：</label>
+    <select id="region" onchange="loadWallpapers()">
+      <option value="zh-CN">中国</option>
+      <option value="en-US">美国</option>
+      <option value="ja-JP">日本</option>
+      <option value="en-GB">英国</option>
+      <option value="fr-FR">法国</option>
+    </select>
+  </header>
+  <div class="gallery" id="gallery">加载中...</div>
 
   <script>
-    const hero = document.getElementById("hero");
-    const heroCaption = document.getElementById("heroCaption");
-    const gallery = document.getElementById("gallery");
-
-    // IntersectionObserver 实现懒加载
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(async entry => {
-        if (entry.isIntersecting && !entry.target.dataset.loaded) {
-          const idx = entry.target.dataset.idx;
-          const res = await fetch(`https://www.bing.com/HPImageArchive.aspx?format=js&idx=${idx}&n=1&mkt=zh-CN`);
-          const data = await res.json();
-          const img = data.images[0];
-          const base = "https://www.bing.com";
-          const thumbURL = base + img.urlbase + "_480x270.jpg";
-          const fullURL = base + img.urlbase + "_UHD.jpg";
-          const title = img.copyright;
-          entry.target.src = thumbURL;
-          entry.target.classList.add("loaded");
-          entry.target.dataset.loaded = "true";
-          const parent = entry.target.parentElement;
-          parent.nextSibling.innerHTML = `
-            <div class="caption-text">${title}</div>
-            <a href="${fullURL}" target="_blank">下载4K</a>
+    async function loadWallpapers() {
+      const region = document.getElementById("region").value;
+      const gallery = document.getElementById("gallery");
+      gallery.innerHTML = "加载中...";
+      try {
+        const res = await fetch(`https://bing-wallpaper.apifox.cn/api/${region}/recent`);
+        const data = await res.json();
+        gallery.innerHTML = "";
+        data.forEach(item => {
+          const card = document.createElement("div");
+          card.className = "card";
+          card.innerHTML = `
+            <img src="${item.urlbase}_480x270.jpg" alt="${item.copyright}" />
+            <p>${item.copyright}</p>
+            <a href="${item.urlbase}_UHD.jpg" target="_blank">📥 下载4K</a>
           `;
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.1 });
-
-    async function loadTodayWallpaper() {
-      const res = await fetch(`https://cn.bing.com/?PC=EMMX01`);
-      const data = await res.json();
-      const img = data.images[0];
-      const base = "https://www.bing.com";
-      hero.style.backgroundImage = `url('${base + img.url}')`;
-      heroCaption.innerText = img.copyright || "Bing 每日壁纸";
+          gallery.appendChild(card);
+        });
+      } catch (e) {
+        gallery.innerHTML = "加载失败，请稍后重试。";
+      }
     }
 
-    function createPlaceholder(idx) {
-      const thumbBox = document.createElement("div");
-      thumbBox.className = "thumb";
-      const img = document.createElement("img");
-      img.dataset.idx = idx;
-      img.alt = `Bing 第 ${idx} 天壁纸`;
-      img.loading = "lazy";
-      const meta = document.createElement("div");
-      observer.observe(img);
-      thumbBox.appendChild(img);
-      thumbBox.appendChild(meta);
-      gallery.appendChild(thumbBox);
-    }
-
-    loadTodayWallpaper();
-    for (let i = 1; i < 30; i++) {
-      createPlaceholder(i);
-    }
+    window.onload = loadWallpapers;
   </script>
 </body>
 </html>
