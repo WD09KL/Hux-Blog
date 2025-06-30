@@ -1,138 +1,35 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8" />
-    <title>必应壁纸馆</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { overflow: hidden; }
 
-        /* 壁纸容器：全屏覆盖，图片自适应 */
-        .wallpaper-wrapper {
-            width: 100vw;
-            height: 100vh;
-            position: relative;
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>必应壁纸</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
         }
-        .wallpaper-img {
+        #wallpaper {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* 保持比例，铺满屏幕 */
-        }
-
-        /* 版权信息栏：底部半透明，突出文字 */
-        .copyright-bar {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            padding: 12px 20px;
-            background: rgba(0,0,0,0.6);
-            color: #fff;
-            font-size: 14px;
-            text-align: center;
-            line-height: 1.6;
-        }
-
-        /* 切换按钮：悬浮底部，交互友好 */
-        .change-btn {
-            position: absolute;
-            bottom: 60px; /* 避开版权栏 */
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 12px 24px;
-            background: #fff;
-            color: #333;
-            border: none;
-            border-radius: 24px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-        .change-btn:hover {
-            background: #f8f8f8;
-            transform: translateX(-50%) scale(1.05);
-        }
-
-        /* 加载动画：请求时的反馈 */
-        .loading-spinner {
-            display: none;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 40px;
-            height: 40px;
-            border: 4px solid #fff;
-            border-top-color: transparent;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            to { transform: translate(-50%, -50%) rotate(360deg); }
+            object-fit: cover;
         }
     </style>
 </head>
 <body>
-    <div class="wallpaper-wrapper">
-        <img src="" alt="必应壁纸" class="wallpaper-img" id="wallpaper" />
-        <div class="copyright-bar" id="copyright"></div>
-        <button class="change-btn" id="changeBtn">一键更换壁纸</button>
-        <div class="loading-spinner" id="spinner"></div>
-    </div>
-
+    <img id="wallpaper" alt="必应壁纸" onerror="this.src='https://via.placeholder.com/1920x1080?text=壁纸加载失败'">
+    
     <script>
-        // 核心配置：必应壁纸API（支持随机获取近7天壁纸）
-        const BING_API = "https://www.bing.com/HPImageArchive.aspx?format=js&idx={idx}&n=1&mkt=zh-CN";
-        
-        // DOM元素
-        const wallpaperEl = document.getElementById("wallpaper");
-        const copyrightEl = document.getElementById("copyright");
-        const changeBtnEl = document.getElementById("changeBtn");
-        const spinnerEl = document.getElementById("spinner");
-
-        // 获取壁纸函数（随机选近7天的壁纸：idx=0~6）
-        async function fetchBingWallpaper() {
-            try {
-                // 显示加载动画，禁用按钮
-                spinnerEl.style.display = "block";
-                changeBtnEl.disabled = true;
-
-                // 随机取近7天的壁纸（idx=0是今日，6是7天前）
-                const randomIdx = Math.floor(Math.random() * 7); 
-                const apiUrl = BING_API.replace("{idx}", randomIdx);
-                
-                // 请求必应API
-                const response = await fetch(apiUrl);
-                const data = await response.json();
-                
-                // 解析数据
-                if (data.images && data.images.length > 0) {
-                    const { url, copyright } = data.images[0];
-                    // 拼接完整图片URL（必应返回的是相对路径）
-                    const fullImgUrl = `https://www.bing.com${url}`;
-                    
-                    // 更新UI
-                    wallpaperEl.src = fullImgUrl;
-                    copyrightEl.textContent = copyright;
-                } else {
-                    copyrightEl.textContent = "暂未获取到壁纸信息";
+        // 必应壁纸API（获取今日壁纸）
+        fetch('https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN')
+            .then(res => res.json())
+            .then(data => {
+                if (data.images && data.images[0]) {
+                    const imgUrl = `https://www.bing.com${data.images[0].url}`;
+                    document.getElementById('wallpaper').src = imgUrl;
                 }
-            } catch (error) {
-                console.error("壁纸加载失败：", error);
-                copyrightEl.textContent = "加载失败，请重试";
-            } finally {
-                // 隐藏加载动画，启用按钮
-                spinnerEl.style.display = "none";
-                changeBtnEl.disabled = false;
-            }
-        }
-
-        // 页面初始化：加载首张壁纸
-        window.onload = () => fetchBingWallpaper();
-
-        // 绑定按钮事件：点击切换壁纸
-        changeBtnEl.addEventListener("click", fetchBingWallpaper);
+            });
     </script>
 </body>
 </html>
