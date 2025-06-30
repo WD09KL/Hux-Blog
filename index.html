@@ -1,46 +1,293 @@
----
-layout: page
-description: "「离开世界之前 一切都是过程」"
----
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>秋意诗韵 - 我的博客</title>
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+    <style type="text/tailwindcss">
+        @theme {
+            --color-primary: #b38d5c;
+            --color-secondary: #e2c29d;
+            --color-dark: #33291c;
+            --color-light: #f8f2e9;
+            --color-gray: #86909C;
+            --font-inter: 'Inter', sans-serif;
+        }
 
-{% for post in paginator.posts %}
-<div class="post-preview">
-    <a href="{{ post.url | prepend: site.baseurl }}">
-        <h2 class="post-title">
-            {{ post.title }}
-        </h2>
-        {% if post.subtitle %}
-        <h3 class="post-subtitle">
-            {{ post.subtitle }}
-        </h3>
-        {% endif %}
-        <div class="post-content-preview">
-            {% if post.lang == 'en' %}
-                {{ post.content | strip_html | truncate:300 }}
-            {% else %}
-                {{ post.content | strip_html | truncate:200 }}
-            {% endif %}
+        @utility smooth-scroll {
+            scroll-behavior: smooth;
+        }
+
+        @utility content-auto {
+            content-visibility: auto;
+        }
+
+        @utility card-hover {
+            @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fadeIn {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        .post-card:nth-child(1) { animation-delay: 0.1s; }
+        .post-card:nth-child(2) { animation-delay: 0.2s; }
+        .post-card:nth-child(3) { animation-delay: 0.3s; }
+    </style>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: var(--font-inter); }
+    </style>
+</head>
+<body class="bg-light text-dark smooth-scroll">
+    <!-- 导航栏 -->
+    <header id="navbar" class="fixed w-full top-0 z-50 transition-all duration-300 bg-transparent">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="#" class="text-2xl font-bold text-white flex items-center space-x-2">
+                <i class="fas fa-leaf text-secondary"></i>
+                <span>秋意诗韵</span>
+            </a>
+
+            <!-- 桌面导航 -->
+            <nav class="hidden md:flex space-x-8">
+                <a href="#" class="text-white hover:text-secondary transition-colors">首页</a>
+                <a href="#posts" class="text-white hover:text-secondary transition-colors">文章</a>
+                <a href="#about" class="text-white hover:text-secondary transition-colors">关于</a>
+                <a href="#contact" class="text-white hover:text-secondary transition-colors">联系</a>
+            </nav>
+
+            <!-- 移动端菜单按钮 -->
+            <button id="menuBtn" class="md:hidden text-white text-2xl">
+                <i class="fas fa-bars"></i>
+            </button>
         </div>
-    </a>
-    <p class="post-meta">
-        Posted by {% if post.author %}{{ post.author }}{% else %}{{ site.title }}{% endif %} on {{ post.date | date: "%B %-d, %Y" }}
-    </p>
-</div>
-<hr>
-{% endfor %}
 
-<!-- Pager -->
-{% if paginator.total_pages > 1 %}
-<ul class="pager">
-    {% if paginator.previous_page %}
-    <li class="previous">
-        <a href="{{ paginator.previous_page_path | prepend: site.baseurl | replace: '//', '/' }}">&larr; Newer Posts</a>
-    </li>
-    {% endif %}
-    {% if paginator.next_page %}
-    <li class="next">
-        <a href="{{ paginator.next_page_path | prepend: site.baseurl | replace: '//', '/' }}">Older Posts &rarr;</a>
-    </li>
-    {% endif %}
-</ul>
-{% endif %}
+        <!-- 移动端导航菜单 -->
+        <div id="mobileMenu" class="md:hidden hidden bg-primary/95 absolute w-full">
+            <div class="container mx-auto px-4 py-3 flex flex-col space-y-4">
+                <a href="#" class="text-white hover:text-secondary transition-colors py-2">首页</a>
+                <a href="#posts" class="text-white hover:text-secondary transition-colors py-2">文章</a>
+                <a href="#about" class="text-white hover:text-secondary transition-colors py-2">关于</a>
+                <a href="#contact" class="text-white hover:text-secondary transition-colors py-2">联系</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 英雄区域 -->
+    <section class="relative h-screen flex items-center justify-center overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <img src="https://picsum.photos/id/1067/1920/1080" alt="背景图" class="w-full h-full object-cover opacity-70">
+            <div class="absolute inset-0 bg-dark/50"></div>
+        </div>
+        <div class="container mx-auto px-4 z-10 text-center">
+            <h1 class="text-[clamp(2.5rem,5vw,4rem)] font-bold text-white mb-4 animate-fadeIn">
+                沉浸在 <span class="text-secondary">秋日黄叶</span> 的诗韵里
+            </h1>
+            <p class="text-[clamp(1rem,2vw,1.25rem)] text-white/90 max-w-2xl mx-auto mb-8 animate-fadeIn" style="animation-delay: 0.2s;">
+                每一片落叶都是秋天的诗行，让我们一起聆听秋的呢喃
+            </p>
+            <a href="#posts" class="inline-block bg-secondary hover:bg-secondary/90 text-white font-medium px-8 py-3 rounded-full transition-all card-hover animate-fadeIn" style="animation-delay: 0.4s;">
+                浏览文章 <i class="fas fa-arrow-down ml-2"></i>
+            </a>
+        </div>
+        <div class="absolute bottom-8 left-0 right-0 text-center">
+            <a href="#posts" class="text-white/80 hover:text-white animate-bounce">
+                <i class="fas fa-chevron-down text-2xl"></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- 文章列表 -->
+    <section id="posts" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold text-dark mb-4">秋日文章</h2>
+                <p class="text-gray max-w-2xl mx-auto">漫步在秋天的文字森林，感受黄叶飘落的诗意</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- 文章卡片1 -->
+                <article class="post-card bg-white rounded-xl shadow-lg overflow-hidden content-auto card-hover">
+                    <div class="h-56 overflow-hidden">
+                        <img src="https://p-flow-review-sign.bytedance.net/ocean-cloud-tos/8f409f0b9c47431e8e57eb149cea4dedpreview.jpeg~tplv-a9rns2rl98-image-qvalue.jpeg?rk3s=49177a0b&x-orig-authkey=aka9rns2rl98&x-orig-expires=2066645088&x-orig-sign=zNG88snpOTIpXyu6dTLTxSEsL4U%3D" alt="秋天的落叶" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center text-sm text-gray mb-3">
+                            <span class="bg-primary/10 text-primary px-3 py-1 rounded-full mr-3">秋意</span>
+                            <span><i class="far fa-calendar-alt mr-1"></i> 2024-11-15</span>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3 hover:text-primary transition-colors">《落叶之舞》</h3>
+                        <p class="text-gray mb-4 line-clamp-3">当第一片黄叶飘落，秋天便开始了它的舞蹈。每一片叶子都像是一个舞者，在空中旋转、飘落，演绎着秋天的故事...</p>
+                        <a href="#" class="inline-flex items-center text-primary font-medium hover:underline">
+                            阅读全文 <i class="fas fa-long-arrow-alt-right ml-2"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- 文章卡片2 -->
+                <article class="post-card bg-white rounded-xl shadow-lg overflow-hidden content-auto card-hover">
+                    <div class="h-56 overflow-hidden">
+                        <img src="https://p-flow-review-sign.bytedance.net/ocean-cloud-tos/5e8614a5722a438e919c7f76dca2c777preview.jpeg~tplv-a9rns2rl98-image-qvalue.jpeg?rk3s=49177a0b&x-orig-authkey=aka9rns2rl98&x-orig-expires=2066645088&x-orig-sign=mhLpF9gzKQmB0sikSL555D0KrBk%3D" alt="秋日小径" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center text-sm text-gray mb-3">
+                            <span class="bg-primary/10 text-primary px-3 py-1 rounded-full mr-3">秋景</span>
+                            <span><i class="far fa-calendar-alt mr-1"></i> 2024-11-10</span>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3 hover:text-primary transition-colors">《秋日小径》</h3>
+                        <p class="text-gray mb-4 line-clamp-3">一条被黄叶铺满的小径，是秋天最温柔的馈赠。走在上面，脚下发出沙沙的声响，仿佛是秋天在耳边低语...</p>
+                        <a href="#" class="inline-flex items-center text-primary font-medium hover:underline">
+                            阅读全文 <i class="fas fa-long-arrow-alt-right ml-2"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- 文章卡片3 -->
+                <article class="post-card bg-white rounded-xl shadow-lg overflow-hidden content-auto card-hover">
+                    <div class="h-56 overflow-hidden">
+                        <img src="https://p-flow-review-sign.bytedance.net/ocean-cloud-tos/798efe97939a4b50ab5e3b1eab301657preview.jpeg~tplv-a9rns2rl98-image-qvalue.jpeg?rk3s=49177a0b&x-orig-authkey=aka9rns2rl98&x-orig-expires=2066645088&x-orig-sign=KR2J8Qnnq6l8OWP81Ygxssh3rHI%3D" alt="金黄的树" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center text-sm text-gray mb-3">
+                            <span class="bg-primary/10 text-primary px-3 py-1 rounded-full mr-3">秋树</span>
+                            <span><i class="far fa-calendar-alt mr-1"></i> 2024-11-05</span>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3 hover:text-primary transition-colors">《金黄的守望》</h3>
+                        <p class="text-gray mb-4 line-clamp-3">那棵金黄的树，像是秋天的守望者。它静静地站在那里，看着叶子一片片飘落，却依然坚守着秋天的承诺...</p>
+                        <a href="#" class="inline-flex items-center text-primary font-medium hover:underline">
+                            阅读全文 <i class="fas fa-long-arrow-alt-right ml-2"></i>
+                        </a>
+                    </div>
+                </article>
+            </div>
+
+            <div class="text-center mt-12">
+                <a href="#" class="inline-block border-2 border-primary text-primary hover:bg-primary hover:text-white font-medium px-8 py-3 rounded-full transition-all">
+                    查看更多文章
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 关于我 -->
+    <section id="about" class="py-20 bg-light">
+        <div class="container mx-auto px-4">
+            <div class="max-w-5xl mx-auto">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div class="order-2 lg:order-1">
+                        <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold text-dark mb-6">关于我</h2>
+                        <p class="text-gray mb-6 text-lg">我是一个热爱秋天的人，喜欢用文字和镜头记录秋天的美好。</p>
+                        <p class="text-gray mb-8">秋天的黄叶，是大自然赋予我们的最美礼物。每一片叶子都有它自己的故事，我希望通过这个博客，与大家分享我眼中的秋天，感受秋天的诗意与浪漫。</p>
+
+                        <div class="grid grid-cols-2 gap-6 mb-8">
+                            <div class="bg-white p-6 rounded-xl shadow-md">
+                                <div class="text-3xl text-primary mb-3"><i class="fas fa-pen-fancy"></i></div>
+                                <h4 class="font-semibold mb-2">文字记录</h4>
+                                <p class="text-gray text-sm">用细腻的文字描绘秋天的情感与景色</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-xl shadow-md">
+                                <div class="text-3xl text-primary mb-3"><i class="fas fa-camera"></i></div>
+                                <h4 class="font-semibold mb-2">影像捕捉</h4>
+                                <p class="text-gray text-sm">用镜头定格秋天的每一个瞬间</p>
+                            </div>
+                        </div>
+
+                        <a href="#contact" class="inline-block bg-primary hover:bg-primary/90 text-white font-medium px-8 py-3 rounded-full transition-all card-hover">
+                            联系我 <i class="fas fa-envelope ml-2"></i>
+                        </a>
+                    </div>
+                    <div class="order-1 lg:order-2 relative">
+                        <div class="w-64 h-64 md:w-80 md:h-80 mx-auto relative z-10 rounded-full overflow-hidden border-8 border-white shadow-xl">
+                            <img src="https://picsum.photos/id/64/400/400" alt="博主" class="w-full h-full object-cover">
+                        </div>
+                        <div class="absolute -top-4 -right-4 w-32 h-32 bg-secondary rounded-full opacity-20 z-0"></div>
+                        <div class="absolute -bottom-4 -left-4 w-40 h-40 bg-primary rounded-full opacity-10 z-0"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 订阅区域 -->
+    <section class="py-16 bg-primary text-white">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-bold mb-4">订阅我的更新</h2>
+            <p class="text-white/80 max-w-2xl mx-auto mb-8">每周获取最新的秋天文章、摄影作品和思考，直接发送到你的邮箱</p>
+
+            <form class="max-w-md mx-auto flex flex-col sm:flex-row gap-3">
+                <input type="email" placeholder="输入你的邮箱地址" class="flex-grow px-5 py-3 rounded-full focus:outline-none text-dark">
+                <button type="submit" class="bg-secondary hover:bg-secondary/90 text-white font-medium px-6 py-3 rounded-full transition-all">
+                    订阅
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- 联系我 -->
+    <section id="contact" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold text-dark mb-4">联系我</h2>
+                <p class="text-gray max-w-2xl mx-auto">如果你有任何问题、建议或者分享，欢迎随时联系我</p>
+            </div>
+
+            <form class="max-w-md mx-auto">
+                <div class="mb-6">
+                    <label for="name" class="block text-gray mb-2">你的姓名</label>
+                    <input type="text" id="name" class="w-full px-5 py-3 border border-gray rounded-full focus:outline-none focus:border-primary">
+                </div>
+                <div class="mb-6">
+                    <label for="email" class="block text-gray mb-2">你的邮箱</label>
+                    <input type="email" id="email" class="w-full px-5 py-3 border border-gray rounded-full focus:outline-none focus:border-primary">
+                </div>
+                <div class="mb-6">
+                    <label for="message" class="block text-gray mb-2">你的留言</label>
+                    <textarea id="message" rows="6" class="w-full px-5 py-3 border border-gray rounded-lg focus:outline-none focus:border-primary"></textarea>
+                </div>
+                <div class="text-center">
+                    <button type="submit" class="bg-primary hover:bg-primary/90 text-white font-medium px-8 py-3 rounded-full transition-all">
+                        发送留言
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="py-8 bg-light border-t border-gray/30">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-gray">版权所有 &copy; 2024 秋意诗韵 - 保留所有权利</p>
+            <div class="mt-4">
+                <a href="#" class="text-primary hover:text-secondary mx-2">首页</a>
+                <a href="#posts" class="text-primary hover:text-secondary mx-2">文章</a>
+                <a href="#about" class="text-primary hover:text-secondary mx-2">关于</a>
+                <a href="#contact" class="text-primary hover:text-secondary mx-2">联系</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const menuBtn = document.getElementById('menuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+
+        menuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                document.getElementById('navbar').classList.add('bg-primary');
+            } else {
+                document.getElementById('navbar').classList.remove('bg-primary');
+            }
+        });
+    </script>
+</body>
+</html>
