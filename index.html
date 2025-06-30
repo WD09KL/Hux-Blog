@@ -4,89 +4,76 @@
   <meta charset="UTF-8">
   <title>每日必应壁纸</title>
   <style>
-    html, body {
+    body {
       margin: 0;
-      height: 100%;
-      background-color: #000;
+      padding: 0;
+      font-family: sans-serif;
+      background-color: #111;
+      color: #fff;
     }
-    #wallpaper {
+    h1 {
+      text-align: center;
+      margin: 2rem 0 1rem;
+    }
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1rem;
+      padding: 1rem;
+    }
+    .card {
+      background: #1e1e1e;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+    }
+    .card img {
       width: 100%;
-      height: 100%;
-      object-fit: cover;
       display: block;
     }
-    #controls {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      display: flex;
-      gap: 12px;
+    .info {
+      padding: 0.8rem;
+    }
+    .info h3 {
+      margin: 0;
+      font-size: 1rem;
     }
     .btn {
-      background: rgba(0,0,0,0.5);
+      display: inline-block;
+      margin-top: 0.5rem;
+      padding: 0.4rem 0.8rem;
       color: white;
-      font-family: sans-serif;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .btn:hover {
-      background: rgba(255,255,255,0.2);
+      background-color: #007acc;
+      text-decoration: none;
+      border-radius: 4px;
+      font-size: 0.9rem;
     }
   </style>
 </head>
 <body>
-  <div id="controls">
-    <button class="btn" onclick="prevImage()">⬅ 上一张</button>
-    <button class="btn" onclick="downloadImage()">⬇ 下载</button>
-    <div id="status" class="btn">加载中...</div>
-  </div>
-  <img id="wallpaper" src="" alt="必应壁纸" onload="loaded()" onerror="handleError()">
+  <h1>📷 最近 7 天必应壁纸</h1>
+  <div class="gallery" id="gallery"></div>
 
   <script>
-    let index = 0;
+    const gallery = document.getElementById('gallery');
 
-    function getImageUrl(idx) {
-      return `https://bing.biturl.top/?resolution=1920&format=image&index=${idx}&mkt=zh-CN`;
+    for (let i = 0; i < 7; i++) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const ymd = date.toISOString().split('T')[0];
+      const imageUrl = `https://bing.biturl.top/?resolution=1920&format=image&index=${i}&mkt=zh-CN`;
+
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <img src="${imageUrl}" alt="Bing 壁纸 ${ymd}">
+        <div class="info">
+          <h3>${ymd}</h3>
+          <a class="btn" href="${imageUrl}" download="bing_${ymd}.jpg">下载</a>
+        </div>
+      `;
+      gallery.appendChild(card);
     }
-
-    function updateImage() {
-      const url = getImageUrl(index);
-      document.getElementById("wallpaper").src = url;
-      document.getElementById("status").textContent = `第 ${index + 1} 张（${idxToDate(index)}）`;
-    }
-
-    function idxToDate(idx) {
-      const today = new Date();
-      today.setDate(today.getDate() - idx);
-      return today.toISOString().split("T")[0];
-    }
-
-    function prevImage() {
-      index = (index + 1) % 7; // 最多7天历史
-      updateImage();
-    }
-
-    function downloadImage() {
-      const url = getImageUrl(index);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `bing_wallpaper_${idxToDate(index)}.jpg`;
-      link.click();
-    }
-
-    function loaded() {
-      document.getElementById("status").textContent = `壁纸加载成功 ✅`;
-    }
-
-    function handleError() {
-      document.getElementById("wallpaper").src = "https://via.placeholder.com/1920x1080?text=加载失败";
-      document.getElementById("status").textContent = "加载失败 ❌";
-    }
-
-    // 初次加载
-    updateImage();
   </script>
 </body>
 </html>
