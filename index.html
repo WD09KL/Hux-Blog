@@ -37,7 +37,7 @@
             document.getElementById('status').textContent = "壁纸加载失败，已显示占位图";
         }
 
-        fetch('https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN')
+        fetch('https://api.dujin.org/bing/1920.php')
             .then(res => res.json())
             .then(data => {
                 if (data.images && data.images[0]) {
