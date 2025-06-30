@@ -2,187 +2,89 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Bing 壁纸 Pro</title>
-  <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjoiQmluZyBXYWxscGFwZXIiLCJzdGFydF91cmwiOiIuL2luZGV4Lmh0bWwiLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsInRoZW1lX2NvbG9yIjoiI2ZmZiIsImJhY2tncm91bmRfY29sb3IiOiIjMDAwIiwiZGVzY3JpcHRpb24iOiLlrprlrrnljJZCaW5n6aG16Z2i6L+U55SoIiwiaWNvbnMiOlt7InNyYyI6Ii8vaS5wbmcid2VpZ2h0OjMyLCJoZWlnaHQiOjMyfV19">
+  <title>每日壁纸 · 极简版</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     html, body {
       margin: 0;
-      padding: 0;
       height: 100%;
-      font-family: sans-serif;
-      transition: background-image 1s ease-in-out;
       background-size: cover;
       background-position: center;
-      color: white;
+      font-family: Arial, sans-serif;
+      color: #fff;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background-color: #000;
     }
     .overlay {
-      background-color: rgba(0,0,0,0.3);
-      height: 100%;
-      width: 100%;
+      background-color: rgba(0, 0, 0, 0.35);
       position: absolute;
+      width: 100%;
+      height: 100%;
       z-index: 0;
     }
     .container {
       position: relative;
       z-index: 1;
-      padding: 2em;
-      text-align: center;
     }
-    button, input, select {
+    h1 {
+      font-size: 2em;
+    }
+    button {
       margin: 0.5em;
-      padding: 0.6em 1em;
+      padding: 10px 16px;
       font-size: 1em;
       border: none;
-      border-radius: 5px;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: rgba(255,255,255,0.2);
+      color: white;
     }
-    #darkToggle {
-      background-color: #444;
-      color: #fff;
+    button:hover {
+      background-color: rgba(255,255,255,0.4);
     }
-    .dark-mode {
-      background-color: #111 !important;
-      color: #eee !important;
+    a {
+      text-decoration: none;
     }
   </style>
 </head>
 <body>
-<div class="overlay"></div>
-<div class="container">
-  <h1>Bing 壁纸 · Pro 版</h1>
-  <p id="caption">加载中...</p>
-  <div>
-    <button onclick="fetchBing()">🔄 刷新壁纸</button>
-    <button onclick="download4k()">📥 下载4K</button>
-    <button onclick="copyLink()">🔗 复制链接</button>
-    <button onclick="toggleDark()">🌓 黑暗模式</button>
+  <div class="overlay"></div>
+  <div class="container">
+    <h1>必应每日壁纸</h1>
+    <p id="caption">加载中...</p>
+    <div>
+      <button onclick="loadWallpaper()">🔄 手动刷新</button>
+      <a id="downloadLink" target="_blank">
+        <button>📥 下载4K原图</button>
+      </a>
+    </div>
   </div>
-  <div>
-    <input id="searchInput" type="text" placeholder="搜索壁纸关键词">
-    <button onclick="searchWallpaper()">🔍 搜索</button>
-  </div>
-  <div>
-    <select id="marketSelect" onchange="fetchBing()">
-      <option value="zh-CN">中国</option>
-      <option value="en-US">美国</option>
-      <option value="ja-JP">日本</option>
-      <option value="en-GB">英国</option>
-    </select>
-    <input type="date" id="datePicker" max="" onchange="fetchByDate()"/>
-  </div>
-  <div>
-    <button onclick="toggleSlideshow()">🎞️ 播放/停止幻灯片</button>
-    <button onclick="toggleFavorite()">❤️ 收藏</button>
-    <button onclick="viewFavorites()">📚 查看收藏</button>
-  </div>
-  <blockquote id="quote"></blockquote>
-</div>
 
-<script>
-  let currentImageUrl = "";
-  let currentDownloadUrl = "";
-  let isDark = false;
-  let slideTimer = null;
-  let slideIndex = 0;
+  <script>
+    let fullResUrl = "";
 
-  const quotes = [
-    "每一个清晨，都是重新开始的机会。",
-    "天空越黑，星星越亮。",
-    "路遥知马力，日久见人心。",
-    "读万卷书，行万里路。",
-    "静以修身，俭以养德。",
-    "Stay hungry, stay foolish.",
-    "Simplicity is the ultimate sophistication."
-  ];
-
-  function fetchBing(offset = 0) {
-    const market = document.getElementById("marketSelect").value;
-    fetch(`https://www.bing.com/HPImageArchive.aspx?format=js&idx=${offset}&n=1&mkt=${market}&uhd=1&uhdwidth=3840&uhdheight=2160`)
-    .then(r => r.json())
-    .then(d => {
-      const img = d.images[0];
-      currentImageUrl = "https://www.bing.com" + img.url;
-      currentDownloadUrl = "https://www.bing.com" + img.urlbase + "_UHD.jpg";
-      document.body.style.backgroundImage = `url('${currentImageUrl}')`;
-      document.getElementById("caption").innerText = img.copyright;
-      document.getElementById("datePicker").value = img.enddate.replace(/^(\d{4})(\d{2})(\d{2})$/, '$1-$2-$3');
-    });
-  }
-
-  function fetchByDate() {
-    const selected = document.getElementById("datePicker").value;
-    const date = new Date(selected);
-    const today = new Date();
-    const offset = Math.floor((today - date) / (1000 * 60 * 60 * 24));
-    if (offset >= 0 && offset <= 7) {
-      fetchBing(offset);
-    } else {
-      alert("Bing 仅支持最近 7 天的历史壁纸。");
+    function loadWallpaper() {
+      fetch("https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN&uhd=1&uhdwidth=3840&uhdheight=2160")
+        .then(r => r.json())
+        .then(d => {
+          const img = d.images[0];
+          const base = "https://www.bing.com";
+          const wallpaperUrl = base + img.url;
+          fullResUrl = base + img.urlbase + "_UHD.jpg";
+          document.body.style.backgroundImage = `url('${wallpaperUrl}')`;
+          document.getElementById("downloadLink").href = fullResUrl;
+          document.getElementById("caption").innerText = img.copyright || "Bing 今日美图";
+        })
+        .catch(err => {
+          document.getElementById("caption").innerText = "加载失败，请稍后重试";
+          console.error(err);
+        });
     }
-  }
 
-  function download4k() {
-    window.open(currentDownloadUrl, "_blank");
-  }
-
-  function searchWallpaper() {
-    const q = document.getElementById("searchInput").value.trim();
-    if (q) window.open(`https://www.pexels.com/zh-cn/search/${encodeURIComponent(q)}/`, "_blank");
-  }
-
-  function copyLink() {
-    navigator.clipboard.writeText(currentDownloadUrl).then(() => alert("下载链接已复制！"));
-  }
-
-  function toggleDark() {
-    document.body.classList.toggle("dark-mode");
-    isDark = !isDark;
-  }
-
-  function toggleSlideshow() {
-    if (slideTimer) {
-      clearInterval(slideTimer);
-      slideTimer = null;
-      alert("幻灯片已停止");
-    } else {
-      slideIndex = 0;
-      slideTimer = setInterval(() => {
-        fetchBing(slideIndex);
-        slideIndex = (slideIndex + 1) % 7;
-      }, 6000);
-      alert("幻灯片播放中");
-    }
-  }
-
-  function toggleFavorite() {
-    const favs = JSON.parse(localStorage.getItem("favs") || "[]");
-    if (!favs.includes(currentDownloadUrl)) {
-      favs.push(currentDownloadUrl);
-      localStorage.setItem("favs", JSON.stringify(favs));
-      alert("已收藏！");
-    } else {
-      alert("已存在收藏夹中");
-    }
-  }
-
-  function viewFavorites() {
-    const favs = JSON.parse(localStorage.getItem("favs") || "[]");
-    if (favs.length === 0) return alert("暂无收藏～");
-    const links = favs.map(f => `<a href="${f}" target="_blank">${f}</a>`).join("<br>");
-    const win = window.open();
-    win.document.write(`<h2>已收藏壁纸：</h2>${links}`);
-  }
-
-  function randomQuote() {
-    const q = quotes[Math.floor(Math.random() * quotes.length)];
-    document.getElementById("quote").innerText = q;
-  }
-
-  window.onload = () => {
-    fetchBing();
-    randomQuote();
-    document.getElementById("datePicker").max = new Date().toISOString().split("T")[0];
-  }
-</script>
+    window.onload = loadWallpaper;
+  </script>
 </body>
 </html>
