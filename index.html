@@ -1,509 +1,142 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bing每日壁纸</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        /* ================= 可定制参数 START ================= */
-        /* 颜色主题 */
-        :root {
-            --bg-color: #0c0c14;          /* 背景颜色 */
-            --card-bg: #1a1a2e;           /* 卡片背景 */
-            --text-color: rgba(255, 255, 255, 0.9); /* 文字颜色 */
-            --accent-color: #5d8bf4;      /* 强调色 */
-        }
-        
-        /* 布局参数 */
-        :root {
-            --mobile-columns: 1;          /* 手机列数 */
-            --tablet-columns: 2;          /* 平板列数 */
-            --desktop-columns: 3;         /* 桌面列数 */
-            
-            --mobile-gap: 8px;           /* 手机间距 */
-            --tablet-gap: 12px;          /* 平板间距 */
-            --desktop-gap: 15px;         /* 桌面间距 */
-            
-            --mobile-padding: 10px;       /* 手机内边距 */
-            --desktop-padding: 15px;      /* 桌面内边距 */
-            
-            --max-width: 1200px;         /* 最大宽度 */
-            
-            --image-ratio: 1.5;          /* 图片宽高比(宽度/高度) */
-            --image-max-height: 400px;    /* 图片最大高度 */
-        }
-        
-        /* 动画参数 */
-        :root {
-            --hover-scale: 1.03;         /* 悬停放大比例 */
-            --transition-speed: 0.3s;     /* 动画速度 */
-        }
-        /* ================= 可定制参数 END ================= */
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            background: var(--bg-color);
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            overflow-x: hidden;
-            color: var(--text-color);
-            -webkit-tap-highlight-color: transparent;
-            padding-bottom: 40px;
-        }
-        
-        .header {
-            text-align: center;
-            padding: 20px 15px 15px;
-            background: linear-gradient(to bottom, var(--bg-color), var(--bg-color)00);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        
-        .header h1 {
-            font-size: 24px;
-            font-weight: 600;
-            background: linear-gradient(45deg, var(--accent-color), #37bcf7);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 5px;
-        }
-        
-        .wallpaper-container {
-            display: grid;
-            grid-template-columns: repeat(var(--mobile-columns), 1fr);
-            gap: var(--mobile-gap);
-            padding: var(--mobile-padding);
-            max-width: var(--max-width);
-            margin: 0 auto;
-        }
-        
-        .wallpaper-card {
-            position: relative;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            background: linear-gradient(135deg, var(--card-bg), #16213e);
-            cursor: pointer;
-            animation: fadeIn 0.6s ease-out;
-            width: 100%;
-            aspect-ratio: var(--image-ratio);
-            max-height: var(--image-max-height);
-            transition: all var(--transition-speed) ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .wallpaper-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-            transition: transform var(--transition-speed) ease;
-            opacity: 0;
-            transition: opacity 0.5s ease;
-        }
-        
-        .wallpaper-image.loaded {
-            opacity: 1;
-        }
-        
-        .wallpaper-card:hover {
-            transform: scale(var(--hover-scale));
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-            z-index: 10;
-        }
-        
-        .wallpaper-card:hover .wallpaper-image {
-            transform: scale(1.05);
-        }
-        
-        .wallpaper-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-            padding: 12px 15px;
-            opacity: 0;
-            transition: opacity var(--transition-speed) ease;
-            pointer-events: none;
-        }
-        
-        .wallpaper-card:hover .wallpaper-overlay {
-            opacity: 1;
-        }
-        
-        .wallpaper-title {
-            font-size: 14px;
-            font-weight: 500;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        .wallpaper-date {
-            font-size: 12px;
-            opacity: 0.7;
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 40px 0;
-            font-size: 16px;
-            color: var(--accent-color);
-            grid-column: 1 / -1;
-        }
-        
-        .loading i {
-            animation: spin 1.2s linear infinite;
-            margin-right: 8px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .load-more-btn {
-            display: block;
-            width: 90%;
-            max-width: 300px;
-            margin: 20px auto;
-            padding: 14px 0;
-            background: linear-gradient(45deg, var(--accent-color), #37bcf7);
-            border: none;
-            border-radius: 50px;
-            color: white;
-            font-size: 16px;
-            font-weight: 600;
-            text-align: center;
-            cursor: pointer;
-            transition: all var(--transition-speed) ease;
-            box-shadow: 0 5px 15px rgba(93, 139, 244, 0.3);
-        }
-        
-        .load-more-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(93, 139, 244, 0.4);
-        }
-        
-        .load-more-btn:active {
-            transform: translateY(0);
-        }
-        
-        /* 响应式设计 - 平板 */
-        @media (min-width: 600px) {
-            .wallpaper-container {
-                grid-template-columns: repeat(var(--tablet-columns), 1fr);
-                gap: var(--tablet-gap);
-            }
-        }
-        
-        /* 响应式设计 - 桌面 */
-        @media (min-width: 900px) {
-            .wallpaper-container {
-                grid-template-columns: repeat(var(--desktop-columns), 1fr);
-                gap: var(--desktop-gap);
-                padding: var(--desktop-padding);
-            }
-        }
-        
-        /* 错误提示样式 */
-        .error-message {
-            text-align: center;
-            padding: 30px;
-            color: #ff6b6b;
-            grid-column: 1 / -1;
-        }
-        
-        .error-message i {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bing每日壁纸</title>
+<style>
+  body { background:#111;color:#eee;font-family:sans-serif;margin:0;padding:0 }
+  .header { padding:15px;text-align:center }
+  .header h1 { margin:0;font-size:22px }
+  .wallpaper-container { display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;padding:10px }
+  .wallpaper-card { position:relative;cursor:pointer }
+  .wallpaper-card img { width:100%;display:block;border-radius:8px }
+  .wallpaper-overlay { position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.5);color:#fff;font-size:12px;padding:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis }
+  #loadMoreBtn { display:block;margin:20px auto;padding:10px 20px;border:none;border-radius:20px;background:#4a90e2;color:#fff;font-weight:bold;cursor:pointer }
+  #sourceSelector { margin-top:10px;padding:5px }
+</style>
 </head>
 <body>
-    <div class="header">
-        <h1>Bing每日壁纸</h1>
-        <p>每日更新 · 高清4K · 点击图片查看详情</p>
-    </div>
-    
-    <div class="wallpaper-container" id="wallpaperContainer">
-        <!-- 壁纸卡片将通过JavaScript动态生成 -->
-    </div>
-    
-    <button class="load-more-btn" id="loadMoreBtn">
-        <i class="fas fa-plus"></i> 加载更多壁纸
-    </button>
-    
-    <div class="loading" id="loadingIndicator" style="display: none;">
-        <i class="fas fa-spinner"></i> 正在加载精美壁纸...
-    </div>
-    
-    <div class="error-message" id="errorMessage" style="display: none;">
-        <i class="fas fa-exclamation-triangle"></i>
-        <p>抱歉，加载壁纸时出错了。请稍后重试。</p>
-    </div>
+<div class="header">
+  <h1>Bing每日壁纸</h1>
+  <select id="sourceSelector">
+    <option value="official">官方（最近8天）</option>
+    <option value="thirdparty">第三方（可加载更多）</option>
+  </select>
+</div>
+<div class="wallpaper-container" id="wallpaperContainer"></div>
+<button id="loadMoreBtn" style="display:none">加载更多壁纸</button>
+<script>
+const wallpaperContainer = document.getElementById('wallpaperContainer');
+const loadMoreBtn = document.getElementById('loadMoreBtn');
+const sourceSelector = document.getElementById('sourceSelector');
 
-    <script>
-        /* ================= 可定制参数 START ================= */
-        // API配置
-        const API_CONFIG = {
-            baseUrl: "https://www.bing.com",  // Bing基础URL
-            apiPath: "/HPImageArchive.aspx", // API路径
-            params: {                        // API参数
-                format: "js",               // 返回格式
-                idx: 0,                    // 开始索引
-                n: 8,                      // 获取数量
-                mkt: "zh-CN"               // 地区
-            },
-            imageBaseUrl: "https://www.bing.com", // 图片基础URL
-            useProxy: true,                // 是否使用代理
-            proxyUrl: "https://cors-anywhere.herokuapp.com/" // 代理URL
-        };
-        
-        // 图片配置
-        const IMAGE_CONFIG = {
-            thumbnailQuality: 800,          // 缩略图质量(宽度)
-            fullQuality: "UHD",             // 原图质量
-        };
-        
-        // 布局配置
-        const LAYOUT_CONFIG = {
-            initialLoadCount: 8,            // 初始加载数量
-            loadMoreCount: 8,               // 每次加载更多数量
-            maxHistoryDays: 7               // 最大历史天数
-        };
-        /* ================= 可定制参数 END ================= */
-        
-        // 获取DOM元素
-        const wallpaperContainer = document.getElementById('wallpaperContainer');
-        const loadingIndicator = document.getElementById('loadingIndicator');
-        const loadMoreBtn = document.getElementById('loadMoreBtn');
-        const errorMessage = document.getElementById('errorMessage');
-        
-        // 壁纸数据
-        let wallpapers = [];
-        let currentIndex = 0;
-        let isLoading = false;
-        let hasMoreWallpapers = true;
-        
-        // 初始化页面
-        document.addEventListener('DOMContentLoaded', () => {
-            loadInitialWallpapers();
-            loadMoreBtn.addEventListener('click', loadMoreWallpapers);
-            loadMoreBtn.type = "button"; // 防止表单提交
-            
-            // 平滑滚动
-            document.documentElement.style.scrollBehavior = 'smooth';
-        });
-        
-        async function loadInitialWallpapers() {
-            showLoading();
-            try {
-                API_CONFIG.params.idx = 0;
-                API_CONFIG.params.n = LAYOUT_CONFIG.initialLoadCount;
-                const data = await fetchBingWallpapers();
-                if (data.length === 0) {
-                    showError();
-                    return;
-                }
-                wallpapers = data;
-                currentIndex = wallpapers.length;
-                hasMoreWallpapers = data.length >= LAYOUT_CONFIG.initialLoadCount;
-                renderWallpapers(wallpapers);
-                hideLoading();
-            } catch (error) {
-                console.error("Error loading initial wallpapers:", error);
-                hideLoading();
-                showError();
-            }
-        }
-        
-        async function loadMoreWallpapers() {
-            if (isLoading || !hasMoreWallpapers) return;
-            
-            showLoading();
-            loadMoreBtn.disabled = true;
-            
-            try {
-                API_CONFIG.params.idx = currentIndex;
-                API_CONFIG.params.n = LAYOUT_CONFIG.loadMoreCount;
-                const newWallpapers = await fetchBingWallpapers();
-                
-                if (newWallpapers.length === 0) {
-                    hasMoreWallpapers = false;
-                    hideLoading();
-                    loadMoreBtn.textContent = "没有更多壁纸了";
-                    setTimeout(() => {
-                        loadMoreBtn.style.display = "none";
-                    }, 1500);
-                    return;
-                }
-                
-                wallpapers = [...wallpapers, ...newWallpapers];
-                currentIndex += newWallpapers.length;
-                hasMoreWallpapers = newWallpapers.length >= LAYOUT_CONFIG.loadMoreCount;
-                
-                renderWallpapers(newWallpapers);
-                hideLoading();
-                loadMoreBtn.disabled = false;
-            } catch (error) {
-                console.error("Error loading more wallpapers:", error);
-                hideLoading();
-                loadMoreBtn.disabled = false;
-                showError();
-            }
-        }
-        
-        // 从Bing API获取壁纸数据
-        async function fetchBingWallpapers() {
-            isLoading = true;
-            
-            try {
-                let url = `${API_CONFIG.baseUrl}${API_CONFIG.apiPath}?${new URLSearchParams(API_CONFIG.params)}`;
-                
-                // 如果启用代理，添加代理前缀
-                if (API_CONFIG.useProxy) {
-                    url = API_CONFIG.proxyUrl + url;
-                }
-                
-                console.log("Fetching URL:", url);
-                
-                const response = await fetch(url);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                
-                if (!data || !data.images || data.images.length === 0) {
-                    throw new Error("No images found in API response");
-                }
-                
-                return data.images.map(image => {
-                    // 构建图片URL
-                    let imageUrl = image.url;
-                    if (!imageUrl.startsWith('http')) {
-                        imageUrl = `${API_CONFIG.imageBaseUrl}${imageUrl}`;
-                    }
-                    
-                    // 构建原图URL
-                    let originalUrl = image.url;
-                    if (!originalUrl.startsWith('http')) {
-                        originalUrl = `${API_CONFIG.imageBaseUrl}${originalUrl}`;
-                    }
-                    
-                    // 替换分辨率为UHD
-                    originalUrl = originalUrl.replace(/1920x1080|1366x768|1024x768/g, IMAGE_CONFIG.fullQuality);
-                    
-                    return {
-                        id: image.hsh,
-                        title: image.title || image.copyright || "Bing壁纸",
-                        date: formatDate(image.enddate),
-                        image: imageUrl,
-                        originalUrl: originalUrl,
-                        copyright: image.copyright || ""
-                    };
-                });
-            } catch (error) {
-                console.error("Error fetching wallpapers:", error);
-                // 错误处理：返回占位图片
-                return generatePlaceholderWallpapers(LAYOUT_CONFIG.loadMoreCount);
-            } finally {
-                isLoading = false;
-            }
-        }
-        
-        // 渲染壁纸卡片
-        function renderWallpapers(wallpapersToRender) {
-            wallpapersToRender.forEach(wallpaper => {
-                const card = document.createElement('div');
-                card.className = 'wallpaper-card';
-                card.tabIndex = 0; // 无障碍支持
-                card.innerHTML = `
-                    <img src="${wallpaper.image}" 
-                         alt="${wallpaper.title}" 
-                         class="wallpaper-image"
-                         loading="lazy">
-                    <div class="wallpaper-overlay">
-                        <div class="wallpaper-title">${wallpaper.title}</div>
-                        <div class="wallpaper-date">${wallpaper.date}</div>
-                    </div>
-                `;
-                
-                card.addEventListener('click', () => {
-                    window.open(wallpaper.originalUrl, '_blank');
-                });
-                
-                card.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') window.open(wallpaper.originalUrl, '_blank');
-                });
-                
-                // 图片加载完成后添加动画
-                const img = card.querySelector('.wallpaper-image');
-                img.onload = () => {
-                    img.classList.add('loaded');
-                };
-                
-                // 错误处理
-                img.onerror = () => {
-                    img.src = `https://picsum.photos/800/450?random=${wallpaper.id}`;
-                    img.classList.add('loaded');
-                };
-                
-                wallpaperContainer.appendChild(card);
-            });
-        }
-        
-        // 格式化日期
-        function formatDate(dateStr) {
-            const date = new Date(dateStr);
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        }
-        
-        // 生成占位壁纸
-        function generatePlaceholderWallpapers(count) {
-            return Array(count).fill().map((_, index) => ({
-                id: `placeholder-${index}`,
-                title: "壁纸加载失败",
-                date: formatDate(new Date()),
-                image: `https://picsum.photos/800/450?random=${index}`,
-                originalUrl: `https://picsum.photos/1920/1080?random=${index}`,
-                copyright: "占位图片"
-            }));
-        }
-        
-        // 显示加载状态
-        function showLoading() {
-            loadingIndicator.style.display = 'block';
-        }
-        
-        // 隐藏加载状态
-        function hideLoading() {
-            loadingIndicator.style.display = 'none';
-        }
-        
-        // 显示错误消息
-        function showError() {
-            errorMessage.style.display = 'block';
-            setTimeout(() => {
-                errorMessage.style.display = 'none';
-            }, 5000);
-        }
-    </script>
+const OFFICIAL_API = {
+  type:"official",
+  baseUrl:"https://cn.bing.com",
+  apiPath:"/HPImageArchive.aspx",
+  params:{ format:"js", idx:0, n:8, mkt:"zh-CN" },
+  imageBaseUrl:"https://cn.bing.com",
+  useProxy:true,
+  proxyUrl:"https://api.allorigins.win/raw?url="
+};
+
+const THIRD_PARTY_API = {
+  type:"thirdparty",
+  baseUrl:"https://bing.biturl.top",
+  apiPath:"/",
+  params:{ resolution:"1920", format:"json", idx:0 },
+  useProxy:false
+};
+
+let currentApi = OFFICIAL_API;
+let currentIndex = 0;
+let wallpapers = [];
+
+sourceSelector.addEventListener('change', () => {
+  currentApi = sourceSelector.value==='official' ? OFFICIAL_API : THIRD_PARTY_API;
+  resetAndLoadWallpapers();
+});
+
+loadMoreBtn.addEventListener('click', () => loadWallpapers());
+
+document.addEventListener('DOMContentLoaded', () => {
+  resetAndLoadWallpapers();
+});
+
+function resetAndLoadWallpapers(){
+  wallpapers=[]; currentIndex=0; wallpaperContainer.innerHTML='';
+  loadMoreBtn.style.display='none';
+  loadWallpapers();
+}
+
+async function loadWallpapers(){
+  loadMoreBtn.disabled=true;
+  let newWallpapers=[];
+  try{
+    if(currentApi.type==='official'){
+      newWallpapers=await fetchOfficialWallpapers();
+      loadMoreBtn.style.display='none'; // 官方不分页
+    }else{
+      newWallpapers=await fetchThirdPartyWallpapers();
+      loadMoreBtn.style.display='block';
+    }
+    wallpapers=wallpapers.concat(newWallpapers);
+    renderWallpapers(newWallpapers);
+  }catch(e){
+    console.error(e);
+  }finally{
+    loadMoreBtn.disabled=false;
+  }
+}
+
+async function fetchOfficialWallpapers(){
+  const params=new URLSearchParams({...currentApi.params,idx:0,n:8});
+  let url=`${currentApi.baseUrl}${currentApi.apiPath}?${params}`;
+  if(currentApi.useProxy) url=currentApi.proxyUrl+encodeURIComponent(url);
+  const res=await fetch(url);
+  const data=await res.json();
+  return data.images.map(img=>{
+    const base=img.urlbase;
+    return{
+      title:img.title||img.copyright||"Bing壁纸",
+      date:formatDate(img.enddate),
+      thumb:`${currentApi.imageBaseUrl}${base}_800x450.jpg`,
+      full:`${currentApi.imageBaseUrl}${base}_UHD.jpg`
+    };
+  });
+}
+
+async function fetchThirdPartyWallpapers(){
+  const params=new URLSearchParams({...currentApi.params,idx:currentIndex});
+  let url=`${currentApi.baseUrl}${currentApi.apiPath}?${params}`;
+  const res=await fetch(url);
+  const data=await res.json();
+  currentIndex+=data.data.length;
+  return data.data.map(img=>{
+    return{
+      title:img.title||img.copyright||"Bing壁纸",
+      date:formatDate(img.startdate),
+      thumb:img.url,
+      full:img.url
+    };
+  });
+}
+
+function renderWallpapers(list){
+  list.forEach(wp=>{
+    const card=document.createElement('div');
+    card.className='wallpaper-card';
+    card.innerHTML=`<img src="${wp.thumb}" alt=""><div class="wallpaper-overlay">${wp.title}</div>`;
+    card.addEventListener('click',()=>window.open(wp.full,'_blank'));
+    wallpaperContainer.appendChild(card);
+  });
+}
+
+function formatDate(str){
+  if(!str) return '';
+  return str.length===8 ? `${str.slice(0,4)}-${str.slice(4,6)}-${str.slice(6)}`:str;
+}
+</script>
 </body>
 </html>
