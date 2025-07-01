@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>每日壁纸</title>
+<title>超清壁纸</title>
 <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -47,11 +47,23 @@
   
   .wallpaper-container {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 15px;
     padding: 20px;
     max-width: 1400px;
     margin: 0 auto;
+  }
+  
+  @media (max-width: 1024px) {
+    .wallpaper-container {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 600px) {
+    .wallpaper-container {
+      grid-template-columns: 1fr;
+    }
   }
   
   .wallpaper-card {
@@ -264,9 +276,7 @@
 </style>
 </head>
 <body>
-<div class="header">
-  <h1>每日壁纸</h1>
-</div>
+
 
 <div class="wallpaper-container" id="wallpaperContainer"></div>
 
