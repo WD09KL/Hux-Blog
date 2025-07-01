@@ -45,26 +45,7 @@
     color: transparent;
   }
   
-  .wallpaper-container {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-    padding: 20px;
-    max-width: 1400px;
-    margin: 0 auto;
-  }
-  
-  @media (max-width: 1024px) {
-    .wallpaper-container {
-      grid-template-columns: 1fr;
-    }
-  }
-  
-  @media (max-width: 600px) {
-    .wallpaper-container {
-      grid-template-columns: 1fr;
-    }
-  }
+
   
   .wallpaper-card {
     position: relative;
@@ -240,6 +221,22 @@
   body.light-mode .theme-text .light-text {
     color: #000;
     font-weight: bold;
+  }
+  
+  .wallpaper-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* 1024px 及以下（平板和手机）都一列 */
+  @media (max-width: 1024px) {
+    .wallpaper-container {
+      grid-template-columns: 1fr;
+    }
   }
   
   @media (max-width: 768px) {
