@@ -1,153 +1,196 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>每日壁纸</title>
-  <style>
-    body { background:#111; color:#eee; font-family:sans-serif; margin:0; padding:0 }
-    .header { padding:15px; text-align:center }
-    .header h1 { margin:0; font-size:22px }
-    .wallpaper-container {
-      display:grid;
-      grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
-      gap:10px;
-      padding:10px
-    }
-    .wallpaper-card { position:relative; cursor:pointer }
-    .wallpaper-card img { width:100%; display:block; border-radius:8px }
-    #loadMoreBtn {
-      display:block;
-      margin:20px auto;
-      padding:10px 20px;
-      border:none;
-      border-radius:20px;
-      background:#4a90e2;
-      color:#fff;
-      font-weight:bold;
-      cursor:pointer
-    }
-    #sourceSelector { margin-top:10px; padding:5px }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>每日壁纸</title>
+<style>
+  body { background:#111;color:#eee;font-family:sans-serif;margin:0;padding:0 }
+  .header { padding:15px;text-align:center }
+  .header h1 { margin:0;font-size:22px }
+  .wallpaper-container { display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;padding:10px }
+  .wallpaper-card { position:relative;cursor:pointer }
+  .wallpaper-card img { 
+    width:100%;
+    height:150px;
+    display:block;
+    border-radius:8px;
+    object-fit:cover;
+    transition:transform 0.3s ease;
+  }
+  .wallpaper-card img:hover { transform:scale(1.03) }
+  #loadMoreBtn { display:block;margin:20px auto;padding:10px 20px;border:none;border-radius:20px;background:#4a90e2;color:#fff;font-weight:bold;cursor:pointer }
+  #sourceSelector { margin-top:10px;padding:5px }
+</style>
 </head>
 <body>
-  <div class="header">
-    <h1>每日壁纸</h1>
-    <select id="sourceSelector">
-      <option value="official">Bing（最近8天）</option>
-      <option value="thirdparty">超清壁纸</option>
-    </select>
-  </div>
-  <div class="wallpaper-container" id="wallpaperContainer"></div>
-  <button id="loadMoreBtn" style="display:none">加载更多壁纸</button>
+<div class="header">
+  <h1>每日壁纸</h1>
+  <select id="sourceSelector">
+    <option value="official">Bing（最近8天）</option>
+    <option value="thirdparty">超清壁纸</option>
+  </select>
+</div>
+<div class="wallpaper-container" id="wallpaperContainer"></div>
+<button id="loadMoreBtn" style="display:none">加载更多壁纸</button>
+<script>
+const wallpaperContainer = document.getElementById('wallpaperContainer');
+const loadMoreBtn = document.getElementById('loadMoreBtn');
+const sourceSelector = document.getElementById('sourceSelector');
 
-  <script>
-    const wallpaperContainer = document.getElementById('wallpaperContainer');
-    const loadMoreBtn = document.getElementById('loadMoreBtn');
-    const sourceSelector = document.getElementById('sourceSelector');
+const OFFICIAL_API = {
+  type: "official",
+  baseUrl: "https://cn.bing.com",
+  apiPath: "/HPImageArchive.aspx",
+  params: { format: "js", idx: 0, n: 8, mkt: "zh-CN" },
+  imageBaseUrl: "https://cn.bing.com",
+  useProxy: true,
+  proxyUrl: "https://api.allorigins.win/raw?url="
+};
 
-    const OFFICIAL_API = {
-      type: "official",
-      baseUrl: "https://cn.bing.com",
-      apiPath: "/HPImageArchive.aspx",
-      params: { format: "js", idx: 0, n: 8, mkt: "zh-CN" },
-      imageBaseUrl: "https://cn.bing.com",
-      useProxy: true,
-      proxyUrl: "https://api.allorigins.win/raw?url="
+const THIRD_PARTY_API = {
+  type: "thirdparty"
+};
+
+let currentApi = OFFICIAL_API;
+let currentIndex = 0;
+let wallpapers = [];
+const realUrlCache = new Map();
+
+sourceSelector.addEventListener('change', () => {
+  currentApi = sourceSelector.value === 'official' ? OFFICIAL_API : THIRD_PARTY_API;
+  resetAndLoadWallpapers();
+});
+
+loadMoreBtn.addEventListener('click', () => loadWallpapers());
+
+document.addEventListener('DOMContentLoaded', () => {
+  resetAndLoadWallpapers();
+});
+
+function resetAndLoadWallpapers() {
+  wallpapers = [];
+  currentIndex = 0;
+  realUrlCache.clear();
+  wallpaperContainer.innerHTML = '';
+  loadMoreBtn.style.display = currentApi.type === 'thirdparty' ? 'block' : 'none';
+  loadWallpapers();
+}
+
+async function loadWallpapers() {
+  loadMoreBtn.disabled = true;
+  let newWallpapers = [];
+  try {
+    if (currentApi.type === 'official') {
+      newWallpapers = await fetchOfficialWallpapers();
+    } else {
+      newWallpapers = await fetchThirdPartyWallpapers();
+    }
+    wallpapers = wallpapers.concat(newWallpapers);
+    renderWallpapers(newWallpapers);
+  } catch (e) {
+    console.error(e);
+  } finally {
+    loadMoreBtn.disabled = false;
+  }
+}
+
+async function fetchOfficialWallpapers() {
+  const params = new URLSearchParams({...currentApi.params, idx: 0, n: 8});
+  let url = `${currentApi.baseUrl}${currentApi.apiPath}?${params}`;
+  if (currentApi.useProxy) url = currentApi.proxyUrl + encodeURIComponent(url);
+  const res = await fetch(url);
+  const data = await res.json();
+  return data.images.map(img => {
+    const base = img.urlbase;
+    return {
+      title: img.title || img.copyright || "Bing壁纸",
+      date: formatDate(img.enddate),
+      thumb: `${currentApi.imageBaseUrl}${img.url}`,
+      full: `${currentApi.imageBaseUrl}${base}_UHD.jpg`
     };
+  });
+}
 
-    const THIRD_PARTY_API = { type: "thirdparty" };
-    const CORS_PROXY = "https://api.allorigins.win/raw?url=";
+async function fetchRealUrl(randomUrl) {
+  if (realUrlCache.has(randomUrl)) {
+    return realUrlCache.get(randomUrl);
+  }
+  try {
+    const response = await fetch(randomUrl, { method: 'HEAD', redirect: 'follow' });
+    const realUrl = response.url;
+    realUrlCache.set(randomUrl, realUrl);
+    return realUrl;
+  } catch (e) {
+    console.error("获取真实图片地址失败:", e);
+    return randomUrl;
+  }
+}
 
-    let currentApi = OFFICIAL_API;
-    let currentIndex = 0;
-
-    sourceSelector.addEventListener('change', () => {
-      currentApi = sourceSelector.value === 'official' ? OFFICIAL_API : THIRD_PARTY_API;
-      resetAndLoadWallpapers();
+async function fetchThirdPartyWallpapers() {
+  const count = 8;
+  const results = [];
+  const promises = [];
+  
+  for (let i = 0; i < count; i++) {
+    const randomParam = currentIndex + i;
+    const thumbUrl = `https://wp.upx8.com/api.php/200/150?random=${randomParam}`;
+    const fullUrl = `https://wp.upx8.com/api.php/800/600?random=${randomParam}`;
+    
+    const wallpaperData = {
+      title: `超清壁纸 ${randomParam}`,
+      date: '',
+      thumb: thumbUrl,
+      full: fullUrl
+    };
+    
+    // 并行获取缩略图和大图的真实地址
+    const thumbPromise = fetchRealUrl(thumbUrl).then(url => {
+      wallpaperData.thumb = url;
     });
-
-    loadMoreBtn.addEventListener('click', loadWallpapers);
-    document.addEventListener('DOMContentLoaded', resetAndLoadWallpapers);
-
-    function resetAndLoadWallpapers() {
-      currentIndex = 0;
-      wallpaperContainer.innerHTML = '';
-      loadMoreBtn.style.display = currentApi.type === 'thirdparty' ? 'block' : 'none';
-      loadWallpapers();
-    }
-
-    async function loadWallpapers() {
-      loadMoreBtn.disabled = true;
-      try {
-        if (currentApi.type === 'official') {
-          const list = await fetchOfficialWallpapers();
-          renderWallpapers(list);
-          loadMoreBtn.style.display = 'none';
-        } else {
-          const list = await fetchThirdPartyWallpapers();
-          renderWallpapers(list);
-          loadMoreBtn.style.display = 'block';
-        }
-      } catch (e) {
-        console.error(e);
-      } finally {
-        loadMoreBtn.disabled = false;
-      }
-    }
-
-    // 官方源
-    async function fetchOfficialWallpapers() {
-      const params = new URLSearchParams({ ...OFFICIAL_API.params, idx: 0, n: 8 });
-      let url = OFFICIAL_API.baseUrl + OFFICIAL_API.apiPath + '?' + params;
-      if (OFFICIAL_API.useProxy) url = OFFICIAL_API.proxyUrl + encodeURIComponent(url);
-      const res = await fetch(url);
-      const data = await res.json();
-      return data.images.map(img => {
-        const base = img.urlbase;
-        return {
-          thumb: OFFICIAL_API.imageBaseUrl + img.url,
-          full:  OFFICIAL_API.imageBaseUrl + base + "_UHD.jpg"
-        };
-      });
-    }
-
-    // 第三方超清——拉取 Blob 再生成 objectURL
-    async function fetchThirdPartyWallpapers() {
-      const count = 8, results = [];
-      for (let i = 0; i < count; i++) {
-        const param = currentIndex + i + 100;
-        const apiUrl = `https://wp.upx8.com/api.php?random=${param}`;
-        // 用 AllOrigins 代理 GET 请求，规避 CORS
-        const proxied = CORS_PROXY + encodeURIComponent(apiUrl);
-        const res = await fetch(proxied);
-        const blob = await res.blob();
-        const objUrl = URL.createObjectURL(blob);
-
-        results.push({ thumb: objUrl, full: objUrl });
-      }
-      currentIndex += count;
-      return results;
-    }
-
-    function renderWallpapers(list) {
-      list.forEach(wp => {
-        const card = document.createElement('div');
-        card.className = 'wallpaper-card';
-        card.innerHTML = `<img src="${wp.thumb}" loading="lazy">`;
-        card.onclick = () => window.open(wp.full, '_blank');
-        wallpaperContainer.appendChild(card);
-      });
-    }
-
-    // 自动滚动加载更多
-    window.addEventListener('scroll', () => {
-      if (
-        currentApi.type === 'thirdparty' &&
-        window.innerHeight + window.scrollY >= document.body.offsetHeight - 100 &&
-        !loadMoreBtn.disabled
-      ) loadWallpapers();
+    
+    const fullPromise = fetchRealUrl(fullUrl).then(url => {
+      wallpaperData.full = url;
     });
-  </script>
+    
+    promises.push(thumbPromise, fullPromise);
+    results.push(wallpaperData);
+  }
+  
+  await Promise.all(promises);
+  currentIndex += count;
+  return results;
+}
+
+function renderWallpapers(list) {
+  list.forEach(wp => {
+    const card = document.createElement('div');
+    card.className = 'wallpaper-card';
+    card.innerHTML = `
+      <img src="${wp.thumb}" alt="${wp.title}" 
+           onerror="this.src='data:image/svg+xml;charset=utf-8,%3Csvg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 width%3D%22200%22 height%3D%22150%22 viewBox%3D%220 0 200 150%22%3E%3Crect fill%3D%22%23333%22 width%3D%22200%22 height%3D%22150%22%2F%3E%3Ctext fill%3D%22%23999%22 font-family%3D%22Arial%22 font-size%3D%2212%22 x%3D%22100%22 y%3D%2275%22 text-anchor%3D%22middle%22%3E图片加载中%3C%2Ftext%3E%3C%2Fsvg%3E'">
+    `;
+    card.addEventListener('click', () => {
+      window.open(wp.full, '_blank');
+    });
+    wallpaperContainer.appendChild(card);
+  });
+}
+
+function formatDate(str) {
+  if (!str) return '';
+  return str.length === 8 ? `${str.slice(0,4)}-${str.slice(4,6)}-${str.slice(6)}` : str;
+}
+
+window.addEventListener('scroll', () => {
+  if (
+    currentApi.type === 'thirdparty' &&
+    window.innerHeight + window.scrollY >= document.body.offsetHeight - 100 &&
+    !loadMoreBtn.disabled
+  ) {
+    loadWallpapers();
+  }
+});
+</script>
 </body>
 </html>
