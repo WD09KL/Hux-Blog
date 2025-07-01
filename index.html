@@ -108,6 +108,12 @@
             object-fit: cover;
             display: block;
             transition: transform var(--transition-speed) ease;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .wallpaper-image.loaded {
+            opacity: 1;
         }
         
         .wallpaper-card:hover {
@@ -210,6 +216,19 @@
                 padding: var(--desktop-padding);
             }
         }
+        
+        /* 错误提示样式 */
+        .error-message {
+            text-align: center;
+            padding: 30px;
+            color: #ff6b6b;
+            grid-column: 1 / -1;
+        }
+        
+        .error-message i {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -229,6 +248,11 @@
     <div class="loading" id="loadingIndicator" style="display: none;">
         <i class="fas fa-spinner"></i> 正在加载精美壁纸...
     </div>
+    
+    <div class="error-message" id="errorMessage" style="display: none;">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p>抱歉，加载壁纸时出错了。请稍后重试。</p>
+    </div>
 
     <script>
         /* ================= 可定制参数 START ================= */
@@ -242,14 +266,15 @@
                 n: 8,                      // 获取数量
                 mkt: "zh-CN"               // 地区
             },
-            imageBaseUrl: "https://www.bing.com" // 图片基础URL
+            imageBaseUrl: "https://www.bing.com", // 图片基础URL
+            useProxy: true,                // 是否使用代理
+            proxyUrl: "https://cors-anywhere.herokuapp.com/" // 代理URL
         };
         
         // 图片配置
         const IMAGE_CONFIG = {
             thumbnailQuality: 800,          // 缩略图质量(宽度)
             fullQuality: "UHD",             // 原图质量
-        
         };
         
         // 布局配置
@@ -264,60 +289,139 @@
         const wallpaperContainer = document.getElementById('wallpaperContainer');
         const loadingIndicator = document.getElementById('loadingIndicator');
         const loadMoreBtn = document.getElementById('loadMoreBtn');
+        const errorMessage = document.getElementById('errorMessage');
         
         // 壁纸数据
         let wallpapers = [];
         let currentIndex = 0;
+        let isLoading = false;
+        let hasMoreWallpapers = true;
         
         // 初始化页面
         document.addEventListener('DOMContentLoaded', () => {
-            loadRealData();
+            loadInitialWallpapers();
             loadMoreBtn.addEventListener('click', loadMoreWallpapers);
             loadMoreBtn.type = "button"; // 防止表单提交
+            
+            // 平滑滚动
+            document.documentElement.style.scrollBehavior = 'smooth';
         });
         
-        async function loadRealData() {
-            loadingIndicator.style.display = 'block';
-            loadMoreBtn.disabled = true;
-            API_CONFIG.params.idx = 0;
-            API_CONFIG.params.n = LAYOUT_CONFIG.initialLoadCount;
-            const data = await fetchBingWallpapers();
-            wallpapers = data;
-            currentIndex = wallpapers.length;
-            wallpaperContainer.innerHTML = ""; // 清空容器
-            renderWallpapers(wallpapers);
-            loadMoreBtn.disabled = false;
+        async function loadInitialWallpapers() {
+            showLoading();
+            try {
+                API_CONFIG.params.idx = 0;
+                API_CONFIG.params.n = LAYOUT_CONFIG.initialLoadCount;
+                const data = await fetchBingWallpapers();
+                if (data.length === 0) {
+                    showError();
+                    return;
+                }
+                wallpapers = data;
+                currentIndex = wallpapers.length;
+                hasMoreWallpapers = data.length >= LAYOUT_CONFIG.initialLoadCount;
+                renderWallpapers(wallpapers);
+                hideLoading();
+            } catch (error) {
+                console.error("Error loading initial wallpapers:", error);
+                hideLoading();
+                showError();
+            }
         }
         
         async function loadMoreWallpapers() {
-            loadingIndicator.style.display = 'block';
-            loadMoreBtn.style.display = 'none';
+            if (isLoading || !hasMoreWallpapers) return;
+            
+            showLoading();
             loadMoreBtn.disabled = true;
-            API_CONFIG.params.idx = currentIndex;
-            API_CONFIG.params.n = LAYOUT_CONFIG.loadMoreCount;
-            const newWallpapers = await fetchBingWallpapers();
-            wallpapers = [...wallpapers, ...newWallpapers];
-            currentIndex += newWallpapers.length;
-            renderWallpapers(newWallpapers);
-            loadMoreBtn.disabled = false;
+            
+            try {
+                API_CONFIG.params.idx = currentIndex;
+                API_CONFIG.params.n = LAYOUT_CONFIG.loadMoreCount;
+                const newWallpapers = await fetchBingWallpapers();
+                
+                if (newWallpapers.length === 0) {
+                    hasMoreWallpapers = false;
+                    hideLoading();
+                    loadMoreBtn.textContent = "没有更多壁纸了";
+                    setTimeout(() => {
+                        loadMoreBtn.style.display = "none";
+                    }, 1500);
+                    return;
+                }
+                
+                wallpapers = [...wallpapers, ...newWallpapers];
+                currentIndex += newWallpapers.length;
+                hasMoreWallpapers = newWallpapers.length >= LAYOUT_CONFIG.loadMoreCount;
+                
+                renderWallpapers(newWallpapers);
+                hideLoading();
+                loadMoreBtn.disabled = false;
+            } catch (error) {
+                console.error("Error loading more wallpapers:", error);
+                hideLoading();
+                loadMoreBtn.disabled = false;
+                showError();
+            }
         }
         
         // 从Bing API获取壁纸数据
         async function fetchBingWallpapers() {
+            isLoading = true;
+            
             try {
-                const url = `${API_CONFIG.baseUrl}${API_CONFIG.apiPath}?${new URLSearchParams(API_CONFIG.params)}`;
+                let url = `${API_CONFIG.baseUrl}${API_CONFIG.apiPath}?${new URLSearchParams(API_CONFIG.params)}`;
+                
+                // 如果启用代理，添加代理前缀
+                if (API_CONFIG.useProxy) {
+                    url = API_CONFIG.proxyUrl + url;
+                }
+                
+                console.log("Fetching URL:", url);
+                
                 const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const data = await response.json();
-                return data.images.map(image => ({
-                    id: image.hsh,
-                    title: image.title || image.copyright || "Bing壁纸",
-                    date: new Date(image.enddate).toISOString().split('T')[0],
-                    image: `${API_CONFIG.imageBaseUrl}${image.url}`,
-                    originalUrl: `${API_CONFIG.imageBaseUrl}${image.url.replace("1920x1080", IMAGE_CONFIG.fullQuality)}`
-                }));
+                
+                if (!data || !data.images || data.images.length === 0) {
+                    throw new Error("No images found in API response");
+                }
+                
+                return data.images.map(image => {
+                    // 构建图片URL
+                    let imageUrl = image.url;
+                    if (!imageUrl.startsWith('http')) {
+                        imageUrl = `${API_CONFIG.imageBaseUrl}${imageUrl}`;
+                    }
+                    
+                    // 构建原图URL
+                    let originalUrl = image.url;
+                    if (!originalUrl.startsWith('http')) {
+                        originalUrl = `${API_CONFIG.imageBaseUrl}${originalUrl}`;
+                    }
+                    
+                    // 替换分辨率为UHD
+                    originalUrl = originalUrl.replace(/1920x1080|1366x768|1024x768/g, IMAGE_CONFIG.fullQuality);
+                    
+                    return {
+                        id: image.hsh,
+                        title: image.title || image.copyright || "Bing壁纸",
+                        date: formatDate(image.enddate),
+                        image: imageUrl,
+                        originalUrl: originalUrl,
+                        copyright: image.copyright || ""
+                    };
+                });
             } catch (error) {
                 console.error("Error fetching wallpapers:", error);
-                return [];
+                // 错误处理：返回占位图片
+                return generatePlaceholderWallpapers(LAYOUT_CONFIG.loadMoreCount);
+            } finally {
+                isLoading = false;
             }
         }
         
@@ -337,18 +441,69 @@
                         <div class="wallpaper-date">${wallpaper.date}</div>
                     </div>
                 `;
+                
                 card.addEventListener('click', () => {
                     window.open(wallpaper.originalUrl, '_blank');
                 });
+                
                 card.addEventListener('keypress', (e) => {
                     if (e.key === 'Enter') window.open(wallpaper.originalUrl, '_blank');
                 });
+                
+                // 图片加载完成后添加动画
+                const img = card.querySelector('.wallpaper-image');
+                img.onload = () => {
+                    img.classList.add('loaded');
+                };
+                
+                // 错误处理
+                img.onerror = () => {
+                    img.src = `https://picsum.photos/800/450?random=${wallpaper.id}`;
+                    img.classList.add('loaded');
+                };
+                
                 wallpaperContainer.appendChild(card);
             });
-            loadingIndicator.style.display = 'none';
-            loadMoreBtn.style.display = 'block';
         }
         
+        // 格式化日期
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        
+        // 生成占位壁纸
+        function generatePlaceholderWallpapers(count) {
+            return Array(count).fill().map((_, index) => ({
+                id: `placeholder-${index}`,
+                title: "壁纸加载失败",
+                date: formatDate(new Date()),
+                image: `https://picsum.photos/800/450?random=${index}`,
+                originalUrl: `https://picsum.photos/1920/1080?random=${index}`,
+                copyright: "占位图片"
+            }));
+        }
+        
+        // 显示加载状态
+        function showLoading() {
+            loadingIndicator.style.display = 'block';
+        }
+        
+        // 隐藏加载状态
+        function hideLoading() {
+            loadingIndicator.style.display = 'none';
+        }
+        
+        // 显示错误消息
+        function showError() {
+            errorMessage.style.display = 'block';
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 5000);
+        }
     </script>
 </body>
 </html>
