@@ -2,8 +2,9 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Bing每日壁纸</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -12,51 +13,98 @@
         }
         
         body {
-            background: #0a0a14;
+            background: #0f0f15;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             overflow-x: hidden;
+            color: rgba(255, 255, 255, 0.9);
+            -webkit-tap-highlight-color: transparent;
         }
         
         .wallpaper-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 2px;
-            padding: 2px;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            padding: 16px;
+            max-width: 2000px;
+            margin: 0 auto;
         }
         
         .wallpaper-card {
             position: relative;
+            border-radius: 12px;
             overflow: hidden;
-            height: 0;
-            padding-bottom: 56.25%; /* 16:9 比例 */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            aspect-ratio: 16/9;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
             cursor: pointer;
-            transition: all 0.3s ease;
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .wallpaper-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+            z-index: 10;
         }
         
         .wallpaper-image {
-            position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
+            display: block;
             transition: transform 0.5s ease;
         }
         
         .wallpaper-card:hover .wallpaper-image {
-            transform: scale(1.05);
+            transform: scale(1.08);
+        }
+        
+        .wallpaper-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            padding: 16px 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        
+        .wallpaper-card:hover .wallpaper-overlay {
+            opacity: 1;
+        }
+        
+        .wallpaper-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .wallpaper-date {
+            font-size: 13px;
+            opacity: 0.7;
         }
         
         .loading {
             text-align: center;
-            padding: 30px 0;
-            color: #5d8aa8;
+            padding: 60px 0;
             font-size: 18px;
-            display: none;
+            color: #5d8bf4;
+            grid-column: 1 / -1;
         }
         
         .loading i {
-            animation: spin 1s linear infinite;
-            margin-right: 10px;
+            animation: spin 1.2s linear infinite;
+            margin-right: 12px;
         }
         
         @keyframes spin {
@@ -64,75 +112,250 @@
             100% { transform: rotate(360deg); }
         }
         
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 16px 28px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.4s ease;
+        }
+        
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        /* 长按提示 */
+        .long-press-hint {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 14px;
+            text-align: center;
+            z-index: 999;
+            animation: pulse 3s infinite;
+            display: none;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+        
+        /* 响应式设计 */
         @media (max-width: 768px) {
             .wallpaper-container {
                 grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 12px;
+                padding: 12px;
+            }
+            
+            .wallpaper-overlay {
+                padding: 12px 16px;
+            }
+            
+            .wallpaper-title {
+                font-size: 14px;
+            }
+            
+            .wallpaper-date {
+                font-size: 12px;
             }
         }
         
         @media (max-width: 480px) {
             .wallpaper-container {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                gap: 10px;
+                padding: 10px;
             }
+            
+            .long-press-hint {
+                width: 90%;
+                font-size: 13px;
+            }
+        }
+        
+        /* 暗色滚动条 */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #0a0a10;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #2a2a40;
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3a3a60;
         }
     </style>
 </head>
 <body>
     <div class="wallpaper-container" id="wallpaperContainer">
-        <!-- 壁纸将通过JavaScript动态生成 -->
+        <!-- 壁纸卡片将通过JavaScript动态生成 -->
     </div>
     
     <div class="loading" id="loadingIndicator">
-        <i class="fas fa-spinner"></i> 加载更多壁纸...
+        <i class="fas fa-spinner"></i> 正在加载精美壁纸...
+    </div>
+    
+    <div class="toast" id="toast">
+        <i class="fas fa-link"></i> 正在打开原始链接...
+    </div>
+    
+    <div class="long-press-hint" id="longPressHint">
+        <i class="fas fa-hand-pointer"></i> 长按图片可访问原始链接
     </div>
 
     <script>
-        // 使用您提供的图片地址格式
-        const wallpapers = [
-            { id: "OHR.WolfeCrater_EN-US2390330059_UHD.jpg" },
-            { id: "OHR.MountAbu_EN-US2289605288_UHD.jpg" },
-            { id: "OHR.SanJuanIslands_EN-US2240849435_UHD.jpg" },
-            { id: "OHR.SardineRun_EN-US2150845580_UHD.jpg" },
-            { id: "OHR.PalaceOfFineArts_EN-US2092895660_UHD.jpg" },
-            { id: "OHR.CRPoppies_EN-US1982175041_UHD.jpg" },
-            { id: "OHR.BannerPeak_EN-US1900383647_UHD.jpg" },
-            { id: "OHR.ApisMellifera_EN-US1841211130_UHD.jpg" },
-            { id: "OHR.SvalbardSun_EN-US1721163428_UHD.jpg" },
-            { id: "OHR.HraunfossarWaterfalls_EN-US1652728546_UHD.jpg" },
-            { id: "OHR.MilkyWayPortugal_EN-US1576618262_UHD.jpg" },
-            { id: "OHR.PawneeOwls_EN-US1483049070_UHD.jpg" },
-            { id: "OHR.Shamrock_EN-US1392980292_UHD.jpg" },
-            { id: "OHR.PandaDay_EN-US1325701048_UHD.jpg" },
-            { id: "OHR.LuebeckCityGate_EN-US1267126922_UHD.jpg" },
-            { id: "OHR.YuanyangChina_EN-US1200115084_UHD.jpg" },
-            { id: "OHR.RomanView_EN-US1065726636_UHD.jpg" },
-            { id: "OHR.FlowerofLife_EN-US0793818222_UHD.jpg" },
-            { id: "OHR.Chamonix_EN-US0693819683_UHD.jpg" },
-            { id: "OHR.GreatCormorants_EN-US0494616605_UHD.jpg" }
+        // 模拟的Bing壁纸数据（实际应用中会从Bing API获取）
+        const mockWallpapers = [
+            { 
+                id: 1, 
+                title: "挪威峡湾的壮丽景色", 
+                date: "2023-10-15", 
+                image: "https://images.unsplash.com/photo-1507272931001-fc06c17e4f43?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80", 
+                originalUrl: "https://www.bing.com" 
+            },
+            { 
+                id: 2, 
+                title: "日本樱花盛开季节", 
+                date: "2023-10-14", 
+                image: "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80", 
+                originalUrl: "https://www.bing.com" 
+            },
+            { 
+                id: 3, 
+                title: "撒哈拉沙漠星空", 
+                date: "2023-10-13", 
+                image: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80", 
+                originalUrl: "https://www.bing.com" 
+            },
+            { 
+                id: 4, 
+                title: "威尼斯水城风光", 
+                date: "2023-10-12", 
+                image: "https://images.unsplash.com/photo-1514890547357-a9ee288728e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80", 
+                originalUrl: "https://www.bing.com" 
+            },
+            { 
+                id: 5, 
+                title: "冰岛极光奇观", 
+                date: "2023-10-11", 
+                image: "https://images.unsplash.com/photo-1502136969935-8d8eef54d77b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80", 
+                originalUrl: "https://www.bing.com" 
+            },
+            { 
+                id: 6, 
+                title: "中国长城日出", 
+                date: "2023-10-10", 
+                image: "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80", 
+                originalUrl: "https://www.bing.com" 
+            },
+            { 
+                id: 7, 
+                title: "亚马逊热带雨林", 
+                date: "2023-10-09", 
+                image: "https://images.unsplash.com/photo-1448375240586-882707db888b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80", 
+                originalUrl: "https://www.bing.com" 
+            },
+            { 
+                id: 8, 
+                title: "瑞士阿尔卑斯山脉", 
+                date: "2023-10-08", 
+                image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80", 
+                originalUrl: "https://www.bing.com" 
+            },
         ];
         
         // 获取DOM元素
         const wallpaperContainer = document.getElementById('wallpaperContainer');
         const loadingIndicator = document.getElementById('loadingIndicator');
+        const toast = document.getElementById('toast');
+        const longPressHint = document.getElementById('longPressHint');
+        
+        // 长按计时器
+        let pressTimer = null;
         
         // 渲染壁纸卡片
-        function renderWallpapers(startIndex = 0, count = 8) {
-            const endIndex = Math.min(startIndex + count, wallpapers.length);
+        function renderWallpapers(wallpapers) {
+            loadingIndicator.style.display = 'none';
             
-            for (let i = startIndex; i < endIndex; i++) {
-                const wallpaper = wallpapers[i];
+            wallpapers.forEach(wallpaper => {
                 const card = document.createElement('div');
                 card.className = 'wallpaper-card';
-                
-                // 使用您提供的图片地址格式
-                const imageUrl = `https://cn.bing.com/th?id=${wallpaper.id}&pid=h`;
-                
                 card.innerHTML = `
-                    <img src="${imageUrl}" alt="Bing每日壁纸" class="wallpaper-image">
+                    <img src="${wallpaper.image}" alt="${wallpaper.title}" class="wallpaper-image">
+                    <div class="wallpaper-overlay">
+                        <div class="wallpaper-title">${wallpaper.title}</div>
+                        <div class="wallpaper-date">${wallpaper.date}</div>
+                    </div>
                 `;
                 
+                // 添加长按事件
+                card.addEventListener('mousedown', (e) => startPress(e, wallpaper));
+                card.addEventListener('mouseup', endPress);
+                card.addEventListener('mouseleave', endPress);
+                card.addEventListener('touchstart', (e) => startPress(e, wallpaper));
+                card.addEventListener('touchend', endPress);
+                card.addEventListener('touchcancel', endPress);
+                
                 wallpaperContainer.appendChild(card);
+            });
+        }
+        
+        // 开始长按
+        function startPress(e, wallpaper) {
+            // 防止默认行为（如移动端长按弹出菜单）
+            e.preventDefault();
+            
+            pressTimer = setTimeout(() => {
+                showToast();
+                setTimeout(() => {
+                    window.open(wallpaper.originalUrl, '_blank');
+                }, 1000);
+            }, 800); // 800ms长按触发
+        }
+        
+        // 结束长按
+        function endPress() {
+            if (pressTimer) {
+                clearTimeout(pressTimer);
+                pressTimer = null;
             }
+        }
+        
+        // 显示Toast通知
+        function showToast() {
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
         }
         
         // 模拟加载更多壁纸
@@ -141,31 +364,74 @@
             
             // 模拟网络请求延迟
             setTimeout(() => {
-                const currentCount = wallpaperContainer.children.length;
-                renderWallpapers(currentCount, 4);
-                loadingIndicator.style.display = 'none';
-            }, 1000);
+                // 在实际应用中，这里会从Bing API获取更多数据
+                const newWallpapers = [];
+                const startId = mockWallpapers.length + 1;
+                
+                for (let i = 0; i < 8; i++) {
+                    const newId = startId + i;
+                    const newDate = `2023-10-${07 - i}`;
+                    newWallpapers.push({
+                        id: newId,
+                        title: `自然风光 #${newId}`,
+                        date: newDate,
+                        image: `https://picsum.photos/1000/563?random=${newId}`,
+                        originalUrl: "https://www.bing.com"
+                    });
+                }
+                
+                // 添加到现有壁纸
+                mockWallpapers.push(...newWallpapers);
+                
+                // 渲染新壁纸
+                renderWallpapers(newWallpapers);
+                
+                // 如果是首次加载后，显示长按提示
+                if (mockWallpapers.length > 16) {
+                    longPressHint.style.display = 'block';
+                    setTimeout(() => {
+                        longPressHint.style.display = 'none';
+                    }, 5000);
+                }
+            }, 1200);
         }
         
-        // 滚动事件监听
+        // 滚动事件监听（优化版）
+        let isLoading = false;
+        let lastScrollPosition = 0;
+        
         window.addEventListener('scroll', () => {
+            const scrollPosition = window.scrollY || window.pageYOffset;
+            const scrollDirection = scrollPosition > lastScrollPosition ? 'down' : 'up';
+            lastScrollPosition = scrollPosition;
+            
+            // 只在下滚时触发
+            if (scrollDirection !== 'down') return;
+            
             const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
             
             // 当滚动到底部时加载更多
-            if (scrollTop + clientHeight >= scrollHeight - 100) {
+            if (scrollTop + clientHeight >= scrollHeight - 600 && !isLoading) {
+                isLoading = true;
                 loadMoreWallpapers();
+                
+                // 设置加载冷却时间
+                setTimeout(() => {
+                    isLoading = false;
+                }, 1500);
             }
         });
         
-        // 初始加载壁纸
-        renderWallpapers();
+        // 初始化页面
+        renderWallpapers(mockWallpapers);
         
-        // 动态加载Font Awesome
-        const faScript = document.createElement('script');
-        faScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js';
-        faScript.integrity = 'sha512-fD9DIUcN0x8x1sO0G+9QJ0w0K7f+4f8M6w6n5O4k0/5e5q5y5K5p5+5q5p5f5q5p5f5q5p5f5q5p5f5q5p5f5q5';
-        faScript.crossOrigin = 'anonymous';
-        document.head.appendChild(faScript);
+        // 初始显示长按提示
+        setTimeout(() => {
+            longPressHint.style.display = 'block';
+            setTimeout(() => {
+                longPressHint.style.display = 'none';
+            }, 5000);
+        }, 3000);
     </script>
 </body>
 </html>
