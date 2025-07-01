@@ -6,6 +6,41 @@
     <title>Bing每日壁纸</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* ================= 可定制参数 START ================= */
+        /* 颜色主题 */
+        :root {
+            --bg-color: #0c0c14;          /* 背景颜色 */
+            --card-bg: #1a1a2e;           /* 卡片背景 */
+            --text-color: rgba(255, 255, 255, 0.9); /* 文字颜色 */
+            --accent-color: #5d8bf4;      /* 强调色 */
+        }
+        
+        /* 布局参数 */
+        :root {
+            --mobile-columns: 1;          /* 手机列数 */
+            --tablet-columns: 2;          /* 平板列数 */
+            --desktop-columns: 3;         /* 桌面列数 */
+            
+            --mobile-gap: 8px;           /* 手机间距 */
+            --tablet-gap: 12px;          /* 平板间距 */
+            --desktop-gap: 15px;         /* 桌面间距 */
+            
+            --mobile-padding: 10px;       /* 手机内边距 */
+            --desktop-padding: 15px;      /* 桌面内边距 */
+            
+            --max-width: 1200px;         /* 最大宽度 */
+            
+            --image-ratio: 1.5;          /* 图片宽高比(宽度/高度) */
+            --image-max-height: 400px;    /* 图片最大高度 */
+        }
+        
+        /* 动画参数 */
+        :root {
+            --hover-scale: 1.03;         /* 悬停放大比例 */
+            --transition-speed: 0.3s;     /* 动画速度 */
+        }
+        /* ================= 可定制参数 END ================= */
+        
         * {
             margin: 0;
             padding: 0;
@@ -13,18 +48,18 @@
         }
         
         body {
-            background: #0c0c14;
+            background: var(--bg-color);
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             overflow-x: hidden;
-            color: rgba(255, 255, 255, 0.9);
+            color: var(--text-color);
             -webkit-tap-highlight-color: transparent;
             padding-bottom: 40px;
         }
         
         .header {
             text-align: center;
-            padding: 20px 15px 10px;
-            background: linear-gradient(to bottom, #0c0c14, #0c0c1400);
+            padding: 20px 15px 15px;
+            background: linear-gradient(to bottom, var(--bg-color), var(--bg-color)00);
             position: sticky;
             top: 0;
             z-index: 100;
@@ -33,25 +68,18 @@
         .header h1 {
             font-size: 24px;
             font-weight: 600;
-            background: linear-gradient(45deg, #5d8bf4, #37bcf7);
+            background: linear-gradient(45deg, var(--accent-color), #37bcf7);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 5px;
         }
         
-        .header p {
-            font-size: 14px;
-            opacity: 0.7;
-            max-width: 300px;
-            margin: 0 auto;
-        }
-        
         .wallpaper-container {
             display: grid;
-            grid-template-columns: repeat(1, 1fr);
-            gap: 8px;
-            padding: 10px;
-            max-width: 1200px;
+            grid-template-columns: repeat(var(--mobile-columns), 1fr);
+            gap: var(--mobile-gap);
+            padding: var(--mobile-padding);
+            max-width: var(--max-width);
             margin: 0 auto;
         }
         
@@ -60,11 +88,13 @@
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            aspect-ratio: 4/3;
-            transition: all 0.3s ease;
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            background: linear-gradient(135deg, var(--card-bg), #16213e);
             cursor: pointer;
             animation: fadeIn 0.6s ease-out;
+            width: 100%;
+            aspect-ratio: var(--image-ratio);
+            max-height: var(--image-max-height);
+            transition: all var(--transition-speed) ease;
         }
         
         @keyframes fadeIn {
@@ -77,11 +107,17 @@
             height: 100%;
             object-fit: cover;
             display: block;
-            transition: transform 0.5s ease;
+            transition: transform var(--transition-speed) ease;
         }
         
-        .wallpaper-card:active .wallpaper-image {
-            transform: scale(1.08);
+        .wallpaper-card:hover {
+            transform: scale(var(--hover-scale));
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+        }
+        
+        .wallpaper-card:hover .wallpaper-image {
+            transform: scale(1.05);
         }
         
         .wallpaper-overlay {
@@ -90,19 +126,18 @@
             left: 0;
             right: 0;
             background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-            padding: 8px 10px;
+            padding: 12px 15px;
             opacity: 0;
-            transition: opacity 0.3s ease;
+            transition: opacity var(--transition-speed) ease;
             pointer-events: none;
         }
         
-        .wallpaper-card:hover .wallpaper-overlay,
-        .wallpaper-card:active .wallpaper-overlay {
+        .wallpaper-card:hover .wallpaper-overlay {
             opacity: 1;
         }
         
         .wallpaper-title {
-            font-size: 10px;
+            font-size: 14px;
             font-weight: 500;
             white-space: nowrap;
             overflow: hidden;
@@ -110,7 +145,7 @@
         }
         
         .wallpaper-date {
-            font-size: 9px;
+            font-size: 12px;
             opacity: 0.7;
         }
         
@@ -118,7 +153,7 @@
             text-align: center;
             padding: 40px 0;
             font-size: 16px;
-            color: #5d8bf4;
+            color: var(--accent-color);
             grid-column: 1 / -1;
         }
         
@@ -132,66 +167,13 @@
             100% { transform: rotate(360deg); }
         }
         
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: white;
-            padding: 14px 24px;
-            border-radius: 50px;
-            font-size: 14px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            z-index: 1000;
-            opacity: 0;
-            transition: all 0.4s ease;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-        }
-        
-        .toast.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
-        
-        /* 长按提示 */
-        .long-press-hint {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 50px;
-            font-size: 13px;
-            text-align: center;
-            z-index: 999;
-            animation: pulse 3s infinite;
-            display: none;
-            max-width: 90%;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 0.7; }
-            50% { opacity: 1; }
-        }
-        
         .load-more-btn {
             display: block;
             width: 90%;
             max-width: 300px;
             margin: 20px auto;
             padding: 14px 0;
-            background: linear-gradient(45deg, #5d8bf4, #37bcf7);
+            background: linear-gradient(45deg, var(--accent-color), #37bcf7);
             border: none;
             border-radius: 50px;
             color: white;
@@ -199,109 +181,41 @@
             font-weight: 600;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all var(--transition-speed) ease;
             box-shadow: 0 5px 15px rgba(93, 139, 244, 0.3);
         }
         
+        .load-more-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(93, 139, 244, 0.4);
+        }
+        
         .load-more-btn:active {
-            transform: scale(0.98);
-            box-shadow: 0 3px 10px rgba(93, 139, 244, 0.2);
+            transform: translateY(0);
         }
         
         /* 响应式设计 - 平板 */
-        @media (min-width: 768px) {
+        @media (min-width: 600px) {
             .wallpaper-container {
-                grid-template-columns: repeat(4, 1fr);
-                gap: 15px;
-                padding: 15px;
-            }
-            
-            .wallpaper-card {
-                border-radius: 10px;
-                aspect-ratio: 16/9;
-            }
-            
-            .wallpaper-overlay {
-                padding: 12px 15px;
-            }
-            
-            .wallpaper-title {
-                font-size: 12px;
-            }
-            
-            .wallpaper-date {
-                font-size: 10px;
-            }
-            
-            .header h1 {
-                font-size: 28px;
-            }
-            
-            .header p {
-                font-size: 16px;
-                max-width: 500px;
+                grid-template-columns: repeat(var(--tablet-columns), 1fr);
+                gap: var(--tablet-gap);
             }
         }
         
         /* 响应式设计 - 桌面 */
-        @media (min-width: 1024px) {
+        @media (min-width: 900px) {
             .wallpaper-container {
-                grid-template-columns: repeat(5, 1fr);
-                gap: 18px;
+                grid-template-columns: repeat(var(--desktop-columns), 1fr);
+                gap: var(--desktop-gap);
+                padding: var(--desktop-padding);
             }
-            
-            .wallpaper-card {
-                aspect-ratio: 16/9;
-            }
-            
-            .wallpaper-overlay {
-                padding: 15px 18px;
-            }
-            
-            .wallpaper-title {
-                font-size: 14px;
-            }
-            
-            .wallpaper-date {
-                font-size: 11px;
-            }
-            
-            .header h1 {
-                font-size: 32px;
-            }
-        }
-        
-        /* 暗色滚动条 */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: #0a0a10;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: #2a2a40;
-            border-radius: 3px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: #3a3a60;
-        }
-        
-        .watermark {
-            text-align: center;
-            color: rgba(255,255,255,0.3);
-            font-size: 12px;
-            margin-top: 15px;
-            padding: 0 15px;
         }
     </style>
 </head>
 <body>
     <div class="header">
         <h1>Bing每日壁纸</h1>
-        <p>每日更新 · 高清4K · 长按图片下载原图</p>
+        <p>每日更新 · 高清4K · 点击图片查看详情</p>
     </div>
     
     <div class="wallpaper-container" id="wallpaperContainer">
@@ -315,119 +229,94 @@
     <div class="loading" id="loadingIndicator" style="display: none;">
         <i class="fas fa-spinner"></i> 正在加载精美壁纸...
     </div>
-    
-    <div class="toast" id="toast">
-        <i class="fas fa-download"></i> 正在打开4K原图...
-    </div>
-    
-    <div class="long-press-hint" id="longPressHint">
-        <i class="fas fa-hand-pointer"></i> 长按图片访问4K原图
-    </div>
-    
-    <div class="watermark">每日自动更新 · 数据来源: Microsoft Bing</div>
 
     <script>
-        // 模拟的Bing壁纸数据（实际应用中会从Bing API获取）
-        const mockWallpapers = [
-            { 
-                id: 1, 
-                title: "挪威峡湾", 
-                date: "2023-10-15", 
-                image: "https://images.unsplash.com/photo-1507272931001-fc06c17e4f43?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80", 
-                original4kUrl: "https://cn.bing.com/th?id=OHR.WolfeCrater_EN-US2390330059_UHD.jpg" 
+        /* ================= 可定制参数 START ================= */
+        // API配置
+        const API_CONFIG = {
+            baseUrl: "https://www.bing.com",  // Bing基础URL
+            apiPath: "/HPImageArchive.aspx", // API路径
+            params: {                        // API参数
+                format: "js",               // 返回格式
+                idx: 0,                    // 开始索引
+                n: 8,                      // 获取数量
+                mkt: "zh-CN"               // 地区
             },
-            { 
-                id: 2, 
-                title: "日本樱花", 
-                date: "2023-10-14", 
-                image: "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80", 
-                original4kUrl: "https://cn.bing.com/th?id=OHR.WolfeCrater_EN-US2390330059_UHD.jpg" 
-            },
-            { 
-                id: 3, 
-                title: "撒哈拉沙漠", 
-                date: "2023-10-13", 
-                image: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80", 
-                original4kUrl: "https://cn.bing.com/th?id=OHR.WolfeCrater_EN-US2390330059_UHD.jpg" 
-            },
-            { 
-                id: 4, 
-                title: "威尼斯水城", 
-                date: "2023-10-12", 
-                image: "https://images.unsplash.com/photo-1514890547357-a9ee288728e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80", 
-                original4kUrl: "https://cn.bing.com/th?id=OHR.WolfeCrater_EN-US2390330059_UHD.jpg" 
-            },
-            { 
-                id: 5, 
-                title: "冰岛极光", 
-                date: "2023-10-11", 
-                image: "https://images.unsplash.com/photo-1502136969935-8d8eef54d77b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80", 
-                original4kUrl: "https://cn.bing.com/th?id=OHR.WolfeCrater_EN-US2390330059_UHD.jpg" 
-            },
-            { 
-                id: 6, 
-                title: "中国长城", 
-                date: "2023-10-10", 
-                image: "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80", 
-                original4kUrl: "https://cn.bing.com/th?id=OHR.WolfeCrater_EN-US2390330059_UHD.jpg" 
-            },
-            { 
-                id: 7, 
-                title: "热带雨林", 
-                date: "2023-10-09", 
-                image: "https://images.unsplash.com/photo-1448375240586-882707db888b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80", 
-                original4kUrl: "https://cn.bing.com/th?id=OHR.WolfeCrater_EN-US2390330059_UHD.jpg" 
-            },
-            { 
-                id: 8, 
-                title: "阿尔卑斯山", 
-                date: "2023-10-08", 
-                image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80", 
-                original4kUrl: "https://cn.bing.com/th?id=OHR.WolfeCrater_EN-US2390330059_UHD.jpg" 
-            },
-            { 
-                id: 9, 
-                title: "富士山日出", 
-                date: "2023-10-07", 
-                image: "https://images.unsplash.com/photo-1542640244-7e672d6cef4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80", 
-                original4kUrl: "https://cn.bing.com/th?id=OHR.WolfeCrater_EN-US2390330059_UHD.jpg" 
-            },
-        ];
+            imageBaseUrl: "https://cn.bing.com" // 图片基础URL
+        };
+        
+        // 图片配置
+        const IMAGE_CONFIG = {
+            thumbnailQuality: 800,          // 缩略图质量(宽度)
+            fullQuality: "UHD",             // 原图质量
+            defaultImage: "https://www.bing.com/th?id=OHR.WolfeCrater_EN-US2390330059_UHD.jpg" // 默认图片
+        };
+        
+        // 布局配置
+        const LAYOUT_CONFIG = {
+            initialLoadCount: 8,            // 初始加载数量
+            loadMoreCount: 8,               // 每次加载更多数量
+            maxHistoryDays: 7               // 最大历史天数
+        };
+        /* ================= 可定制参数 END ================= */
         
         // 获取DOM元素
         const wallpaperContainer = document.getElementById('wallpaperContainer');
         const loadingIndicator = document.getElementById('loadingIndicator');
-        const toast = document.getElementById('toast');
-        const longPressHint = document.getElementById('longPressHint');
         const loadMoreBtn = document.getElementById('loadMoreBtn');
         
-        // 长按计时器
-        let pressTimer = null;
+        // 壁纸数据
+        let wallpapers = [];
+        let currentIndex = 0;
+        
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', () => {
+            // 模拟数据加载 - 实际应用中替换为fetchBingWallpapers()
+            loadMockData();
+            
+            // 加载更多按钮事件
+            loadMoreBtn.addEventListener('click', loadMoreWallpapers);
+        });
+        
+        // 从Bing API获取壁纸数据
+        async function fetchBingWallpapers() {
+            try {
+                const url = `${API_CONFIG.baseUrl}${API_CONFIG.apiPath}?${new URLSearchParams(API_CONFIG.params)}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                return data.images.map(image => ({
+                    id: image.hsh,
+                    title: image.title,
+                    date: new Date(image.enddate).toISOString().split('T')[0],
+                    image: `${API_CONFIG.imageBaseUrl}${image.url}_${IMAGE_CONFIG.thumbnailQuality}x${Math.round(IMAGE_CONFIG.thumbnailQuality/image.ratio)}`,
+                    originalUrl: `${API_CONFIG.imageBaseUrl}${image.url.replace("1920x1080", IMAGE_CONFIG.fullQuality)}`
+                }));
+            } catch (error) {
+                console.error("Error fetching wallpapers:", error);
+                return [];
+            }
+        }
         
         // 渲染壁纸卡片
-        function renderWallpapers(wallpapers) {
-            wallpapers.forEach(wallpaper => {
+        function renderWallpapers(wallpapersToRender) {
+            wallpapersToRender.forEach(wallpaper => {
                 const card = document.createElement('div');
                 card.className = 'wallpaper-card';
                 card.innerHTML = `
-                    <img src="${wallpaper.image}" alt="${wallpaper.title}" class="wallpaper-image">
+                    <img src="${wallpaper.image || IMAGE_CONFIG.defaultImage}" 
+                         alt="${wallpaper.title}" 
+                         class="wallpaper-image"
+                         loading="lazy">
                     <div class="wallpaper-overlay">
                         <div class="wallpaper-title">${wallpaper.title}</div>
                         <div class="wallpaper-date">${wallpaper.date}</div>
                     </div>
                 `;
                 
-                // 添加长按事件
-                card.addEventListener('mousedown', (e) => startPress(e, wallpaper));
-                card.addEventListener('mouseup', endPress);
-                card.addEventListener('mouseleave', endPress);
-                card.addEventListener('touchstart', (e) => startPress(e, wallpaper));
-                card.addEventListener('touchend', endPress);
-                card.addEventListener('touchcancel', endPress);
-                
-                // 添加点击事件 - 显示大图预览
+                // 点击事件 - 打开原图
                 card.addEventListener('click', () => {
-                    previewWallpaper(wallpaper);
+                    window.open(wallpaper.originalUrl, '_blank');
                 });
                 
                 wallpaperContainer.appendChild(card);
@@ -437,152 +326,57 @@
             loadMoreBtn.style.display = 'block';
         }
         
-        // 开始长按
-        function startPress(e, wallpaper) {
-            // 防止默认行为（如移动端长按弹出菜单）
-            e.preventDefault();
-            
-            pressTimer = setTimeout(() => {
-                showToast();
-                setTimeout(() => {
-                    window.open(wallpaper.original4kUrl, '_blank');
-                }, 800);
-            }, 800); // 800ms长按触发
-        }
-        
-        // 结束长按
-        function endPress() {
-            if (pressTimer) {
-                clearTimeout(pressTimer);
-                pressTimer = null;
-            }
-        }
-        
-        // 显示Toast通知
-        function showToast() {
-            toast.classList.add('show');
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 2000);
-        }
-        
-        // 预览壁纸
-        function previewWallpaper(wallpaper) {
-            // 创建预览层
-            const preview = document.createElement('div');
-            preview.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.95);
-                z-index: 2000;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                padding: 20px;
-            `;
-            
-            preview.innerHTML = `
-                <div style="max-width: 100%; max-height: 80%; margin-bottom: 20px;">
-                    <img src="${wallpaper.image}" alt="${wallpaper.title}" style="max-width: 100%; max-height: 100%; border-radius: 10px;">
-                </div>
-                <div style="text-align: center; color: white; max-width: 90%;">
-                    <h2 style="margin-bottom: 10px; font-size: 18px;">${wallpaper.title}</h2>
-                    <p style="margin-bottom: 20px; opacity: 0.8; font-size: 14px;">${wallpaper.date}</p>
-                    <div style="display: flex; gap: 15px; justify-content: center;">
-                        <button id="closePreview" style="
-                            background: rgba(255, 255, 255, 0.15);
-                            border: none;
-                            color: white;
-                            padding: 12px 25px;
-                            border-radius: 50px;
-                            cursor: pointer;
-                            font-weight: 500;
-                            transition: all 0.3s;
-                            font-size: 14px;
-                        ">
-                            <i class="fas fa-times"></i> 关闭
-                        </button>
-                        <button id="downloadPreview" style="
-                            background: linear-gradient(45deg, #5d8bf4, #37bcf7);
-                            border: none;
-                            color: white;
-                            padding: 12px 25px;
-                            border-radius: 50px;
-                            cursor: pointer;
-                            font-weight: 500;
-                            transition: all 0.3s;
-                            font-size: 14px;
-                        ">
-                            <i class="fas fa-download"></i> 下载4K
-                        </button>
-                    </div>
-                </div>
-            `;
-            
-            document.body.appendChild(preview);
-            
-            // 添加事件监听器
-            document.getElementById('closePreview').addEventListener('click', () => {
-                preview.remove();
-            });
-            
-            document.getElementById('downloadPreview').addEventListener('click', () => {
-                window.open(wallpaper.original4kUrl, '_blank');
-                preview.remove();
-            });
-        }
-        
         // 加载更多壁纸
         function loadMoreWallpapers() {
             loadingIndicator.style.display = 'block';
             loadMoreBtn.style.display = 'none';
             
-            // 模拟网络请求延迟
             setTimeout(() => {
-                // 在实际应用中，这里会从Bing API获取更多数据
-                const newWallpapers = [];
-                const startId = mockWallpapers.length + 1;
+                // 模拟加载更多数据 - 实际应用中替换为fetchBingWallpapers()
+                const newWallpapers = generateMockData(
+                    LAYOUT_CONFIG.loadMoreCount, 
+                    currentIndex + 1
+                );
                 
-                for (let i = 0; i < 9; i++) {
-                    const newId = startId + i;
-                    const newDate = `2023-10-${07 - i}`;
-                    newWallpapers.push({
-                        id: newId,
-                        title: `自然风光 #${newId}`,
-                        date: newDate,
-                        image: `https://picsum.photos/600/400?random=${newId}`,
-                        original4kUrl: "https://cn.bing.com/th?id=OHR.WolfeCrater_EN-US2390330059_UHD.jpg"
-                    });
-                }
+                wallpapers = [...wallpapers, ...newWallpapers];
+                currentIndex += newWallpapers.length;
                 
-                // 渲染新壁纸
                 renderWallpapers(newWallpapers);
-                
-                // 显示长按提示
-                longPressHint.style.display = 'block';
-                setTimeout(() => {
-                    longPressHint.style.display = 'none';
-                }, 5000);
-            }, 1200);
+            }, 800);
         }
         
-        // 添加事件监听器
-        loadMoreBtn.addEventListener('click', loadMoreWallpapers);
-        
-        // 初始化页面
-        renderWallpapers(mockWallpapers);
-        
-        // 初始显示长按提示
-        setTimeout(() => {
-            longPressHint.style.display = 'block';
+        /* ================= 模拟数据函数 - 仅用于演示 ================= */
+        function loadMockData() {
+            loadingIndicator.style.display = 'block';
+            
             setTimeout(() => {
-                longPressHint.style.display = 'none';
-            }, 5000);
-        }, 3000);
+                wallpapers = generateMockData(
+                    LAYOUT_CONFIG.initialLoadCount,
+                    0
+                );
+                currentIndex = wallpapers.length;
+                
+                renderWallpapers(wallpapers);
+            }, 1000);
+        }
+        
+        function generateMockData(count, startId) {
+            const mockTitles = [
+                "挪威峡湾的壮丽景色", "日本樱花盛开季节", "撒哈拉沙漠星空", 
+                "威尼斯水城风光", "冰岛极光奇观", "中国长城日出", 
+                "亚马逊热带雨林", "瑞士阿尔卑斯山脉", "富士山日出",
+                "马尔代夫碧海蓝天", "巴黎埃菲尔铁塔", "新西兰草原牧场"
+            ];
+            
+            return Array.from({ length: count }, (_, i) => ({
+                id: startId + i,
+                title: mockTitles[(startId + i) % mockTitles.length],
+                date: new Date(Date.now() - (i * 24 * 60 * 60 * 1000)).toISOString().split('T')[0],
+                image: `https://picsum.photos/${IMAGE_CONFIG.thumbnailQuality}/${Math.round(IMAGE_CONFIG.thumbnailQuality/1.5)}?random=${startId + i}`,
+                originalUrl: IMAGE_CONFIG.defaultImage
+            }));
+        }
+        /* ================= 模拟数据函数结束 ================= */
     </script>
 </body>
 </html>
