@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bing每日壁纸 - 高清壁纸浏览器</title>
+    <title>Bing每日壁纸浏览器</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -14,157 +14,170 @@
         }
         
         body {
-            background: linear-gradient(135deg, #1a2a6c, #2c3e50);
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
             color: #fff;
             overflow-x: hidden;
+            padding-top: 20px;
         }
         
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 0 20px;
         }
         
-        header {
-            text-align: center;
-            padding: 30px 0;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 15px;
-            margin-bottom: 30px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        h1 {
-            font-size: 2.8rem;
-            margin-bottom: 10px;
-            background: linear-gradient(45deg, #00c9ff, #92fe9d);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        }
-        
-        .subtitle {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            max-width: 700px;
-            margin: 0 auto;
-            line-height: 1.6;
-        }
-        
-        .features {
+        .app-bar {
             display: flex;
-            justify-content: center;
-            gap: 25px;
-            flex-wrap: wrap;
-            margin: 30px 0;
-        }
-        
-        .feature-card {
-            background: rgba(255, 255, 255, 0.1);
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.05);
             border-radius: 12px;
-            padding: 25px;
-            width: 300px;
-            text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
-            background: rgba(255, 255, 255, 0.15);
-        }
-        
-        .feature-card i {
-            font-size: 3rem;
-            margin-bottom: 20px;
-            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.4rem;
+            font-weight: 600;
+            background: linear-gradient(45deg, #3498db, #1abc9c);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
         
-        .feature-card h3 {
-            font-size: 1.5rem;
-            margin-bottom: 15px;
+        .logo i {
+            font-size: 1.8rem;
         }
         
-        .feature-card p {
-            font-size: 1rem;
-            opacity: 0.8;
-            line-height: 1.6;
+        .controls {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .control-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            backdrop-filter: blur(5px);
+        }
+        
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .info-text {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.1rem;
+            opacity: 0.9;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .info-text i {
+            color: #3498db;
+            margin: 0 5px;
         }
         
         .wallpaper-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 25px;
-            margin-top: 40px;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
         }
         
         .wallpaper-card {
             background: rgba(255, 255, 255, 0.05);
-            border-radius: 15px;
+            border-radius: 12px;
             overflow: hidden;
             position: relative;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease;
-            height: 300px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            height: 260px;
+            cursor: pointer;
         }
         
         .wallpaper-card:hover {
             transform: scale(1.03);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+            z-index: 10;
         }
         
         .wallpaper-image {
             width: 100%;
-            height: 200px;
+            height: 100%;
             object-fit: cover;
             display: block;
-            cursor: pointer; /* 增加点击提示 */
+            transition: transform 0.5s ease;
         }
         
-        .wallpaper-info {
-            padding: 20px;
+        .wallpaper-card:hover .wallpaper-image {
+            transform: scale(1.05);
+        }
+        
+        .wallpaper-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            padding: 15px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .wallpaper-card:hover .wallpaper-overlay {
+            opacity: 1;
         }
         
         .wallpaper-title {
-            font-size: 1.2rem;
-            margin-bottom: 10px;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
         
         .wallpaper-date {
-            font-size: 0.9rem;
-            opacity: 0.7;
-            margin-bottom: 15px;
+            font-size: 0.85rem;
+            opacity: 0.8;
         }
         
-        .download-btn {
-            display: inline-block;
-            background: linear-gradient(45deg, #3498db, #1abc9c);
+        .download-hint {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
             color: white;
-            padding: 10px 20px;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            opacity: 0;
+            transform: translateY(10px);
             transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-            font-size: 0.95rem;
-            width: 100%;
-            text-align: center;
         }
         
-        .download-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 7px 15px rgba(0, 0, 0, 0.3);
-            background: linear-gradient(45deg, #2980b9, #16a085);
+        .wallpaper-card:hover .download-hint {
+            opacity: 1;
+            transform: translateY(0);
         }
         
         .loading {
@@ -172,6 +185,7 @@
             padding: 50px 0;
             font-size: 1.2rem;
             color: #3498db;
+            margin: 30px 0;
         }
         
         .scroll-hint {
@@ -180,6 +194,12 @@
             font-size: 1.1rem;
             opacity: 0.8;
             animation: pulse 2s infinite;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
         }
         
         @keyframes pulse {
@@ -197,49 +217,55 @@
             opacity: 0.7;
         }
         
+        /* 响应式设计 */
         @media (max-width: 768px) {
-            .features {
+            .wallpaper-container {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+            
+            .app-bar {
                 flex-direction: column;
-                align-items: center;
+                gap: 15px;
             }
             
-            .feature-card {
+            .controls {
                 width: 100%;
-                max-width: 400px;
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .wallpaper-container {
+                grid-template-columns: 1fr;
             }
             
-            h1 {
-                font-size: 2.2rem;
+            .control-btn {
+                padding: 8px 12px;
+                font-size: 0.9rem;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1><i class="fas fa-images"></i> Bing每日壁纸浏览器</h1>
-            <p class="subtitle">探索世界各地的壮丽景观，每日自动更新来自Bing的高清壁纸，<strong>点击图片直接下载4K版本</strong>（浏览器自动保存）</p>
-            
-            <div class="features">
-                <div class="feature-card">
-                    <i class="fas fa-sync-alt"></i>
-                    <h3>每日自动更新</h3>
-                    <p>每天自动从Bing获取最新高清壁纸，无需手动刷新，始终呈现最精美的图片</p>
-                </div>
-                
-                <div class="feature-card">
-                    <i class="fas fa-download"></i>
-                    <h3>点击下载4K</h3>
-                    <p>直接点击图片查看4K原图，浏览器支持长按/右键保存，适配手机和桌面设备</p>
-                </div>
-                
-                <div class="feature-card">
-                    <i class="fas fa-mouse"></i>
-                    <h3>无限滚动加载</h3>
-                    <p>向下滚动页面自动加载历史壁纸，探索过往精彩画面，无需手动翻页</p>
-                </div>
+        <div class="app-bar">
+            <div class="logo">
+                <i class="fas fa-image"></i>
+                <span>Bing每日壁纸</span>
             </div>
-        </header>
+            <div class="controls">
+                <button class="control-btn" id="refreshBtn">
+                    <i class="fas fa-sync-alt"></i> 刷新壁纸
+                </button>
+                <button class="control-btn" id="randomBtn">
+                    <i class="fas fa-random"></i> 随机壁纸
+                </button>
+            </div>
+        </div>
+        
+        <div class="info-text">
+            <i class="fas fa-info-circle"></i> 点击任意图片可直接下载4K超高清版本 | 滚动页面底部加载更多历史壁纸
+        </div>
         
         <div class="wallpaper-container" id="wallpaperContainer">
             <!-- 壁纸卡片将通过JavaScript动态生成 -->
@@ -254,36 +280,38 @@
         </div>
         
         <footer>
-            <p>© 2025 Bing每日壁纸浏览器 | 数据来源: Microsoft Bing | 图片支持浏览器原生下载</p>
-            <p>操作提示：手机端点击图片长按保存，电脑端右键图片选择"保存图像"</p>
+            <p>© 2023 Bing每日壁纸浏览器 | 数据来源: Microsoft Bing</p>
+            <p>点击下载4K高清壁纸 | 无限滚动浏览 | 每日自动更新</p>
         </footer>
     </div>
 
     <script>
-        // 模拟的壁纸数据（实际应用中会从Bing API获取4K原图链接）
+        // 模拟的壁纸数据（实际应用中会从Bing API获取）
         const wallpapers = [
-            { id: 1, title: "挪威峡湾的壮丽景色", date: "2025-06-30", image: "https://images.unsplash.com/photo-1507272931001-fc06c17e4f43?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", 
-              originalUrl: "https://images.unsplash.com/photo-1507272931001-fc06c17e4f43?ixlib=rb-4.0.3&auto=format&fit=crop&w=3840&q=80" }, // 模拟4K链接
-            { id: 2, title: "日本樱花盛开季节", date: "2025-06-29", image: "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-              originalUrl: "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?ixlib=rb-4.0.3&auto=format&fit=crop&w=3840&q=80" },
-            { id: 3, title: "撒哈拉沙漠星空", date: "2025-06-28", image: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-              originalUrl: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?ixlib=rb-4.0.3&auto=format&fit=crop&w=3840&q=80" },
-            { id: 4, title: "威尼斯水城风光", date: "2025-06-27", image: "https://images.unsplash.com/photo-1514890547357-a9ee288728e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-              originalUrl: "https://images.unsplash.com/photo-1514890547357-a9ee288728e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=3840&q=80" },
-            { id: 5, title: "冰岛极光奇观", date: "2025-06-26", image: "https://images.unsplash.com/photo-1502136969935-8d8eef54d77b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-              originalUrl: "https://images.unsplash.com/photo-1502136969935-8d8eef54d77b?ixlib=rb-4.0.3&auto=format&fit=crop&w=3840&q=80" },
-            { id: 6, title: "中国长城日出", date: "2025-06-25", image: "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-              originalUrl: "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?ixlib=rb-4.0.3&auto=format&fit=crop&w=3840&q=80" },
-            { id: 7, title: "亚马逊热带雨林", date: "2025-06-24", image: "https://images.unsplash.com/photo-1448375240586-882707db888b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-              originalUrl: "https://images.unsplash.com/photo-1448375240586-882707db888b?ixlib=rb-4.0.3&auto=format&fit=crop&w=3840&q=80" },
-            { id: 8, title: "瑞士阿尔卑斯山脉", date: "2025-06-23", image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-              originalUrl: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?ixlib=rb-4.0.3&auto=format&fit=crop&w=3840&q=80" },
+            { id: 1, title: "挪威峡湾的壮丽景色", date: "2023-10-15", image: "https://images.unsplash.com/photo-1507272931001-fc06c17e4f43?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", 
+              download: "https://images.unsplash.com/photo-1507272931001-fc06c17e4f43?ixlib=rb-4.0.3&auto=format&fit=crop&w=3840&q=90" },
+            { id: 2, title: "日本樱花盛开季节", date: "2023-10-14", image: "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", 
+              download: "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?ixlib=rb-4.0.3&auto=format&fit=crop&w=3840&q=90" },
+            { id: 3, title: "撒哈拉沙漠星空", date: "2023-10-13", image: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", 
+              download: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?ixlib=rb-4.0.3&auto=format&fit=crop&w=3840&q=90" },
+            { id: 4, title: "威尼斯水城风光", date: "2023-10-12", image: "https://images.unsplash.com/photo-1514890547357-a9ee288728e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", 
+              download: "https://images.unsplash.com/photo-1514890547357-a9ee288728e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=3840&q=90" },
+            { id: 5, title: "冰岛极光奇观", date: "2023-10-11", image: "https://images.unsplash.com/photo-1502136969935-8d8eef54d77b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", 
+              download: "https://images.unsplash.com/photo-1502136969935-8d8eef54d77b?ixlib=rb-4.0.3&auto=format&fit=crop&w=3840&q=90" },
+            { id: 6, title: "中国长城日出", date: "2023-10-10", image: "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", 
+              download: "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?ixlib=rb-4.0.3&auto=format&fit=crop&w=3840&q=90" },
+            { id: 7, title: "亚马逊热带雨林", date: "2023-10-09", image: "https://images.unsplash.com/photo-1448375240586-882707db888b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", 
+              download: "https://images.unsplash.com/photo-1448375240586-882707db888b?ixlib=rb-4.0.3&auto=format&fit=crop&w=3840&q=90" },
+            { id: 8, title: "瑞士阿尔卑斯山脉", date: "2023-10-08", image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", 
+              download: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?ixlib=rb-4.0.3&auto=format&fit=crop&w=3840&q=90" },
         ];
         
         // 获取DOM元素
         const wallpaperContainer = document.getElementById('wallpaperContainer');
         const loadingIndicator = document.getElementById('loadingIndicator');
         const scrollHint = document.getElementById('scrollHint');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const randomBtn = document.getElementById('randomBtn');
         
         // 渲染壁纸卡片
         function renderWallpapers() {
@@ -293,18 +321,247 @@
                 const card = document.createElement('div');
                 card.className = 'wallpaper-card';
                 card.innerHTML = `
-                    <img src="${wallpaper.image}" alt="${wallpaper.title}" class="wallpaper-image" onclick="openOriginalImage('${wallpaper.originalUrl}', '${wallpaper.title}')">
-                    <div class="wallpaper-info">
+                    <img src="${wallpaper.image}" alt="${wallpaper.title}" class="wallpaper-image">
+                    <div class="download-hint">点击下载4K</div>
+                    <div class="wallpaper-overlay">
                         <h3 class="wallpaper-title">${wallpaper.title}</h3>
                         <div class="wallpaper-date">${wallpaper.date}</div>
-                        <button class="download-btn" onclick="openOriginalImage('${wallpaper.originalUrl}', '${wallpaper.title}')">
-                            <i class="fas fa-download"></i> 查看并下载4K版本
-                        </button>
                     </div>
                 `;
+                
+                // 添加点击事件直接下载
+                card.addEventListener('click', () => {
+                    downloadWallpaper(wallpaper);
+                });
+                
                 wallpaperContainer.appendChild(card);
             });
         }
         
-        // 打开4K原图链接（浏览器自动处理下载）
-        function openOriginalImage(url, title) {
+        // 下载功能
+        function downloadWallpaper(wallpaper) {
+            // 创建临时链接进行下载
+            const link = document.createElement('a');
+            link.href = wallpaper.download;
+            link.download = `Bing壁纸-${wallpaper.title.replace(/\s+/g, '_')}-4K.jpg`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // 显示下载反馈
+            showDownloadFeedback(wallpaper);
+        }
+        
+        // 显示下载反馈
+        function showDownloadFeedback(wallpaper) {
+            const feedback = document.createElement('div');
+            feedback.innerHTML = `
+                <div style="
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    background: rgba(25, 181, 144, 0.9);
+                    color: white;
+                    padding: 15px 25px;
+                    border-radius: 10px;
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                    z-index: 1000;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    animation: fadeIn 0.3s, fadeOut 0.3s 2.7s;
+                ">
+                    <i class="fas fa-check-circle" style="font-size: 1.5rem;"></i>
+                    <div>
+                        <div style="font-weight: 600;">下载成功!</div>
+                        <div style="font-size: 0.9rem;">${wallpaper.title}</div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(feedback);
+            
+            // 3秒后移除反馈
+            setTimeout(() => {
+                feedback.remove();
+            }, 3000);
+        }
+        
+        // 模拟加载更多壁纸
+        function loadMoreWallpapers() {
+            loadingIndicator.style.display = 'block';
+            scrollHint.style.display = 'none';
+            
+            // 模拟网络请求延迟
+            setTimeout(() => {
+                // 在实际应用中，这里会从API获取更多数据
+                for (let i = 0; i < 4; i++) {
+                    const newId = wallpapers.length + 1;
+                    const newDate = `2023-10-${07 - i}`;
+                    wallpapers.push({
+                        id: newId,
+                        title: `精选壁纸 #${newId}`,
+                        date: newDate,
+                        image: `https://picsum.photos/800/600?random=${newId}`,
+                        download: `https://picsum.photos/3840/2160?random=${newId}`
+                    });
+                }
+                
+                renderWallpapers();
+                loadingIndicator.style.display = 'none';
+                
+                // 显示滚动提示（如果有更多数据）
+                scrollHint.style.display = 'block';
+            }, 1500);
+        }
+        
+        // 刷新壁纸
+        function refreshWallpapers() {
+            // 在实际应用中，这里会重新获取最新壁纸
+            loadingIndicator.style.display = 'block';
+            
+            setTimeout(() => {
+                // 清空现有壁纸
+                wallpapers.length = 0;
+                
+                // 添加新的壁纸数据
+                for (let i = 1; i <= 8; i++) {
+                    const newDate = `2023-10-${15 + i}`;
+                    wallpapers.push({
+                        id: i,
+                        title: `最新壁纸 #${i}`,
+                        date: newDate,
+                        image: `https://picsum.photos/800/600?random=${i + 100}`,
+                        download: `https://picsum.photos/3840/2160?random=${i + 100}`
+                    });
+                }
+                
+                renderWallpapers();
+                loadingIndicator.style.display = 'none';
+                
+                // 显示成功提示
+                const feedback = document.createElement('div');
+                feedback.innerHTML = `
+                    <div style="
+                        position: fixed;
+                        bottom: 20px;
+                        left: 20px;
+                        background: rgba(52, 152, 219, 0.9);
+                        color: white;
+                        padding: 15px 25px;
+                        border-radius: 10px;
+                        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                        z-index: 1000;
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        animation: fadeIn 0.3s, fadeOut 0.3s 2.7s;
+                    ">
+                        <i class="fas fa-sync-alt" style="font-size: 1.5rem;"></i>
+                        <div>
+                            <div style="font-weight: 600;">壁纸已刷新!</div>
+                            <div style="font-size: 0.9rem;">已加载最新壁纸</div>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(feedback);
+                
+                // 3秒后移除反馈
+                setTimeout(() => {
+                    feedback.remove();
+                }, 3000);
+            }, 1000);
+        }
+        
+        // 随机壁纸
+        function showRandomWallpaper() {
+            const randomIndex = Math.floor(Math.random() * wallpapers.length);
+            const randomWallpaper = wallpapers[randomIndex];
+            
+            // 创建模态框显示大图
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.9);
+                z-index: 2000;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+                animation: fadeIn 0.3s;
+            `;
+            
+            modal.innerHTML = `
+                <div style="max-width: 90%; max-height: 80vh; margin-bottom: 20px;">
+                    <img src="${randomWallpaper.image}" alt="${randomWallpaper.title}" style="max-width: 100%; max-height: 80vh; border-radius: 10px;">
+                </div>
+                <div style="text-align: center; color: white; max-width: 800px;">
+                    <h2 style="margin-bottom: 10px;">${randomWallpaper.title}</h2>
+                    <p style="margin-bottom: 20px; opacity: 0.8;">${randomWallpaper.date}</p>
+                    <div style="display: flex; gap: 15px; justify-content: center;">
+                        <button id="closeModal" style="
+                            background: rgba(255, 255, 255, 0.1);
+                            border: none;
+                            color: white;
+                            padding: 12px 25px;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            font-weight: 500;
+                            transition: all 0.3s;
+                        ">
+                            <i class="fas fa-times"></i> 关闭
+                        </button>
+                        <button id="downloadFromModal" style="
+                            background: linear-gradient(45deg, #3498db, #1abc9c);
+                            border: none;
+                            color: white;
+                            padding: 12px 25px;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            font-weight: 500;
+                            transition: all 0.3s;
+                        ">
+                            <i class="fas fa-download"></i> 下载4K版本
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // 添加事件监听器
+            document.getElementById('closeModal').addEventListener('click', () => {
+                modal.remove();
+            });
+            
+            document.getElementById('downloadFromModal').addEventListener('click', () => {
+                downloadWallpaper(randomWallpaper);
+                modal.remove();
+            });
+        }
+        
+        // 滚动事件监听
+        window.addEventListener('scroll', () => {
+            const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+            
+            // 当滚动到底部时加载更多
+            if (scrollTop + clientHeight >= scrollHeight - 100) {
+                loadMoreWallpapers();
+            }
+        });
+        
+        // 添加按钮事件
+        refreshBtn.addEventListener('click', refreshWallpapers);
+        randomBtn.addEventListener('click', showRandomWallpaper);
+        
+        // 初始化页面
+        renderWallpapers();
+    </script>
+</body>
+</html>
