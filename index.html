@@ -223,6 +223,7 @@
     font-weight: bold;
   }
   
+  /* 修改为一行一列布局 */
   .wallpaper-container {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -232,20 +233,14 @@
     margin: 0 auto;
   }
 
-  /* 1024px 及以下（平板和手机）都一列 */
+  /* 平板和手机端：一列 */
   @media (max-width: 1024px) {
     .wallpaper-container {
       grid-template-columns: 1fr;
     }
   }
-  
+
   @media (max-width: 768px) {
-    .wallpaper-container {
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 12px;
-      padding: 15px;
-    }
-    
     .header h1 {
       font-size: 1.8rem;
     }
@@ -308,7 +303,7 @@ const OFFICIAL_API = {
   proxyUrl: "https://api.allorigins.win/raw?url="
 };
 
-const THIRD_PARTY_API = {
+const THIRDPARTYAPI = {
   type: "thirdparty"
 };
 
@@ -327,7 +322,7 @@ themeToggle.addEventListener('click', () => {
 // 壁纸源切换功能
 sourceToggle.addEventListener('click', () => {
   if (currentApi.type === "official") {
-    currentApi = THIRD_PARTY_API;
+    currentApi = THIRDPARTYAPI;
     sourceToggle.textContent = "Bing壁纸";
   } else {
     currentApi = OFFICIAL_API;
