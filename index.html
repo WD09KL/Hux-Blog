@@ -76,7 +76,7 @@ async function loadWallpapers(){
   try{
     if(currentApi.type==='official'){
       newWallpapers=await fetchOfficialWallpapers();
-      loadMoreBtn.style.display='none'; // 官方不分页
+      loadMoreBtn.style.display='none'; // 官方只返回最近8天
     }else{
       newWallpapers=await fetchThirdPartyWallpapers();
       loadMoreBtn.style.display='block';
@@ -101,7 +101,8 @@ async function fetchOfficialWallpapers(){
     return{
       title:img.title||img.copyright||"Bing壁纸",
       date:formatDate(img.enddate),
-      thumb:`${currentApi.imageBaseUrl}${base}_800x450.jpg`,
+      // ✅ 缩略图用官方返回的 url，保证存在
+      thumb:`${currentApi.imageBaseUrl}${img.url}`,
       full:`${currentApi.imageBaseUrl}${base}_UHD.jpg`
     };
   });
@@ -112,12 +113,17 @@ async function fetchThirdPartyWallpapers(){
   let url=`${currentApi.baseUrl}${currentApi.apiPath}?${params}`;
   const res=await fetch(url);
   const data=await res.json();
+  if(!data || !Array.isArray(data.data)){
+    console.warn('第三方接口返回不正确:', data);
+    return [];
+  }
+  if(data.data.length===0) return [];
   currentIndex+=data.data.length;
   return data.data.map(img=>{
     return{
       title:img.title||img.copyright||"Bing壁纸",
       date:formatDate(img.startdate),
-      thumb:img.url,
+      thumb:img.url,   // 第三方只返回原图
       full:img.url
     };
   });
