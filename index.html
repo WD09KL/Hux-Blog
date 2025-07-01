@@ -242,14 +242,14 @@
                 n: 8,                      // 获取数量
                 mkt: "zh-CN"               // 地区
             },
-            imageBaseUrl: "https://cn.bing.com" // 图片基础URL
+            imageBaseUrl: "https://www.bing.com" // 图片基础URL
         };
         
         // 图片配置
         const IMAGE_CONFIG = {
             thumbnailQuality: 800,          // 缩略图质量(宽度)
             fullQuality: "UHD",             // 原图质量
-            defaultImage: "https://www.bing.com/th?id=OHR.WolfeCrater_EN-US2390330059_UHD.jpg" // 默认图片
+        
         };
         
         // 布局配置
@@ -271,12 +271,36 @@
         
         // 初始化页面
         document.addEventListener('DOMContentLoaded', () => {
-            // 模拟数据加载 - 实际应用中替换为fetchBingWallpapers()
-            loadMockData();
-            
-            // 加载更多按钮事件
+            loadRealData();
             loadMoreBtn.addEventListener('click', loadMoreWallpapers);
+            loadMoreBtn.type = "button"; // 防止表单提交
         });
+        
+        async function loadRealData() {
+            loadingIndicator.style.display = 'block';
+            loadMoreBtn.disabled = true;
+            API_CONFIG.params.idx = 0;
+            API_CONFIG.params.n = LAYOUT_CONFIG.initialLoadCount;
+            const data = await fetchBingWallpapers();
+            wallpapers = data;
+            currentIndex = wallpapers.length;
+            wallpaperContainer.innerHTML = ""; // 清空容器
+            renderWallpapers(wallpapers);
+            loadMoreBtn.disabled = false;
+        }
+        
+        async function loadMoreWallpapers() {
+            loadingIndicator.style.display = 'block';
+            loadMoreBtn.style.display = 'none';
+            loadMoreBtn.disabled = true;
+            API_CONFIG.params.idx = currentIndex;
+            API_CONFIG.params.n = LAYOUT_CONFIG.loadMoreCount;
+            const newWallpapers = await fetchBingWallpapers();
+            wallpapers = [...wallpapers, ...newWallpapers];
+            currentIndex += newWallpapers.length;
+            renderWallpapers(newWallpapers);
+            loadMoreBtn.disabled = false;
+        }
         
         // 从Bing API获取壁纸数据
         async function fetchBingWallpapers() {
@@ -284,12 +308,11 @@
                 const url = `${API_CONFIG.baseUrl}${API_CONFIG.apiPath}?${new URLSearchParams(API_CONFIG.params)}`;
                 const response = await fetch(url);
                 const data = await response.json();
-                
                 return data.images.map(image => ({
                     id: image.hsh,
-                    title: image.title,
+                    title: image.title || image.copyright || "Bing壁纸",
                     date: new Date(image.enddate).toISOString().split('T')[0],
-                    image: `${API_CONFIG.imageBaseUrl}${image.url}_${IMAGE_CONFIG.thumbnailQuality}x${Math.round(IMAGE_CONFIG.thumbnailQuality/image.ratio)}`,
+                    image: `${API_CONFIG.imageBaseUrl}${image.url}`,
                     originalUrl: `${API_CONFIG.imageBaseUrl}${image.url.replace("1920x1080", IMAGE_CONFIG.fullQuality)}`
                 }));
             } catch (error) {
@@ -303,8 +326,9 @@
             wallpapersToRender.forEach(wallpaper => {
                 const card = document.createElement('div');
                 card.className = 'wallpaper-card';
+                card.tabIndex = 0; // 无障碍支持
                 card.innerHTML = `
-                    <img src="${wallpaper.image || IMAGE_CONFIG.defaultImage}" 
+                    <img src="${wallpaper.image}" 
                          alt="${wallpaper.title}" 
                          class="wallpaper-image"
                          loading="lazy">
@@ -313,70 +337,18 @@
                         <div class="wallpaper-date">${wallpaper.date}</div>
                     </div>
                 `;
-                
-                // 点击事件 - 打开原图
                 card.addEventListener('click', () => {
                     window.open(wallpaper.originalUrl, '_blank');
                 });
-                
+                card.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') window.open(wallpaper.originalUrl, '_blank');
+                });
                 wallpaperContainer.appendChild(card);
             });
-            
             loadingIndicator.style.display = 'none';
             loadMoreBtn.style.display = 'block';
         }
         
-        // 加载更多壁纸
-        function loadMoreWallpapers() {
-            loadingIndicator.style.display = 'block';
-            loadMoreBtn.style.display = 'none';
-            
-            setTimeout(() => {
-                // 模拟加载更多数据 - 实际应用中替换为fetchBingWallpapers()
-                const newWallpapers = generateMockData(
-                    LAYOUT_CONFIG.loadMoreCount, 
-                    currentIndex + 1
-                );
-                
-                wallpapers = [...wallpapers, ...newWallpapers];
-                currentIndex += newWallpapers.length;
-                
-                renderWallpapers(newWallpapers);
-            }, 800);
-        }
-        
-        /* ================= 模拟数据函数 - 仅用于演示 ================= */
-        function loadMockData() {
-            loadingIndicator.style.display = 'block';
-            
-            setTimeout(() => {
-                wallpapers = generateMockData(
-                    LAYOUT_CONFIG.initialLoadCount,
-                    0
-                );
-                currentIndex = wallpapers.length;
-                
-                renderWallpapers(wallpapers);
-            }, 1000);
-        }
-        
-        function generateMockData(count, startId) {
-            const mockTitles = [
-                "挪威峡湾的壮丽景色", "日本樱花盛开季节", "撒哈拉沙漠星空", 
-                "威尼斯水城风光", "冰岛极光奇观", "中国长城日出", 
-                "亚马逊热带雨林", "瑞士阿尔卑斯山脉", "富士山日出",
-                "马尔代夫碧海蓝天", "巴黎埃菲尔铁塔", "新西兰草原牧场"
-            ];
-            
-            return Array.from({ length: count }, (_, i) => ({
-                id: startId + i,
-                title: mockTitles[(startId + i) % mockTitles.length],
-                date: new Date(Date.now() - (i * 24 * 60 * 60 * 1000)).toISOString().split('T')[0],
-                image: `https://picsum.photos/${IMAGE_CONFIG.thumbnailQuality}/${Math.round(IMAGE_CONFIG.thumbnailQuality/1.5)}?random=${startId + i}`,
-                originalUrl: IMAGE_CONFIG.defaultImage
-            }));
-        }
-        /* ================= 模拟数据函数结束 ================= */
     </script>
 </body>
 </html>
