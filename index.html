@@ -124,6 +124,7 @@
             height: 200px;
             object-fit: cover;
             display: block;
+            cursor: pointer; /* 增加点击提示 */
         }
         
         .wallpaper-info {
@@ -217,7 +218,7 @@
     <div class="container">
         <header>
             <h1><i class="fas fa-images"></i> Bing每日壁纸浏览器</h1>
-            <p class="subtitle">探索世界各地的壮丽景观，每日自动更新来自Bing的高清壁纸，支持一键下载4K超高清版本</p>
+            <p class="subtitle">探索世界各地的壮丽景观，每日自动更新来自Bing的高清壁纸，<strong>点击图片直接下载4K版本</strong>（浏览器自动保存）</p>
             
             <div class="features">
                 <div class="feature-card">
@@ -228,14 +229,14 @@
                 
                 <div class="feature-card">
                     <i class="fas fa-download"></i>
-                    <h3>4K下载功能</h3>
-                    <p>一键下载当前壁纸的原始4K超高清版本，适用于桌面、手机等各种设备</p>
+                    <h3>点击下载4K</h3>
+                    <p>直接点击图片查看4K原图，浏览器支持长按/右键保存，适配手机和桌面设备</p>
                 </div>
                 
                 <div class="feature-card">
                     <i class="fas fa-mouse"></i>
-                    <h3>滚动刷新</h3>
-                    <p>向下滚动页面自动加载更多历史壁纸，探索过去的精彩画面</p>
+                    <h3>无限滚动加载</h3>
+                    <p>向下滚动页面自动加载历史壁纸，探索过往精彩画面，无需手动翻页</p>
                 </div>
             </div>
         </header>
@@ -253,22 +254,30 @@
         </div>
         
         <footer>
-            <p>© 2023 Bing每日壁纸浏览器 | 数据来源: Microsoft Bing | 本网站仅用于展示目的</p>
-            <p>每日自动更新 | 4K高清下载 | 无限滚动浏览</p>
+            <p>© 2025 Bing每日壁纸浏览器 | 数据来源: Microsoft Bing | 图片支持浏览器原生下载</p>
+            <p>操作提示：手机端点击图片长按保存，电脑端右键图片选择"保存图像"</p>
         </footer>
     </div>
 
     <script>
-        // 模拟的壁纸数据（实际应用中会从Bing API获取）
+        // 模拟的壁纸数据（实际应用中会从Bing API获取4K原图链接）
         const wallpapers = [
-            { id: 1, title: "挪威峡湾的壮丽景色", date: "2023-10-15", image: "https://images.unsplash.com/photo-1507272931001-fc06c17e4f43?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" },
-            { id: 2, title: "日本樱花盛开季节", date: "2023-10-14", image: "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" },
-            { id: 3, title: "撒哈拉沙漠星空", date: "2023-10-13", image: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" },
-            { id: 4, title: "威尼斯水城风光", date: "2023-10-12", image: "https://images.unsplash.com/photo-1514890547357-a9ee288728e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" },
-            { id: 5, title: "冰岛极光奇观", date: "2023-10-11", image: "https://images.unsplash.com/photo-1502136969935-8d8eef54d77b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" },
-            { id: 6, title: "中国长城日出", date: "2023-10-10", image: "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" },
-            { id: 7, title: "亚马逊热带雨林", date: "2023-10-09", image: "https://images.unsplash.com/photo-1448375240586-882707db888b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" },
-            { id: 8, title: "瑞士阿尔卑斯山脉", date: "2023-10-08", image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" },
+            { id: 1, title: "挪威峡湾的壮丽景色", date: "2025-06-30", image: "https://images.unsplash.com/photo-1507272931001-fc06c17e4f43?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", 
+              originalUrl: "https://images.unsplash.com/photo-1507272931001-fc06c17e4f43?ixlib=rb-4.0.3&auto=format&fit=crop&w=3840&q=80" }, // 模拟4K链接
+            { id: 2, title: "日本樱花盛开季节", date: "2025-06-29", image: "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+              originalUrl: "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?ixlib=rb-4.0.3&auto=format&fit=crop&w=3840&q=80" },
+            { id: 3, title: "撒哈拉沙漠星空", date: "2025-06-28", image: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+              originalUrl: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?ixlib=rb-4.0.3&auto=format&fit=crop&w=3840&q=80" },
+            { id: 4, title: "威尼斯水城风光", date: "2025-06-27", image: "https://images.unsplash.com/photo-1514890547357-a9ee288728e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+              originalUrl: "https://images.unsplash.com/photo-1514890547357-a9ee288728e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=3840&q=80" },
+            { id: 5, title: "冰岛极光奇观", date: "2025-06-26", image: "https://images.unsplash.com/photo-1502136969935-8d8eef54d77b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+              originalUrl: "https://images.unsplash.com/photo-1502136969935-8d8eef54d77b?ixlib=rb-4.0.3&auto=format&fit=crop&w=3840&q=80" },
+            { id: 6, title: "中国长城日出", date: "2025-06-25", image: "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+              originalUrl: "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?ixlib=rb-4.0.3&auto=format&fit=crop&w=3840&q=80" },
+            { id: 7, title: "亚马逊热带雨林", date: "2025-06-24", image: "https://images.unsplash.com/photo-1448375240586-882707db888b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+              originalUrl: "https://images.unsplash.com/photo-1448375240586-882707db888b?ixlib=rb-4.0.3&auto=format&fit=crop&w=3840&q=80" },
+            { id: 8, title: "瑞士阿尔卑斯山脉", date: "2025-06-23", image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+              originalUrl: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?ixlib=rb-4.0.3&auto=format&fit=crop&w=3840&q=80" },
         ];
         
         // 获取DOM元素
@@ -284,12 +293,12 @@
                 const card = document.createElement('div');
                 card.className = 'wallpaper-card';
                 card.innerHTML = `
-                    <img src="${wallpaper.image}" alt="${wallpaper.title}" class="wallpaper-image">
+                    <img src="${wallpaper.image}" alt="${wallpaper.title}" class="wallpaper-image" onclick="openOriginalImage('${wallpaper.originalUrl}', '${wallpaper.title}')">
                     <div class="wallpaper-info">
                         <h3 class="wallpaper-title">${wallpaper.title}</h3>
                         <div class="wallpaper-date">${wallpaper.date}</div>
-                        <button class="download-btn" onclick="downloadWallpaper(${wallpaper.id})">
-                            <i class="fas fa-download"></i> 下载4K版本
+                        <button class="download-btn" onclick="openOriginalImage('${wallpaper.originalUrl}', '${wallpaper.title}')">
+                            <i class="fas fa-download"></i> 查看并下载4K版本
                         </button>
                     </div>
                 `;
@@ -297,58 +306,5 @@
             });
         }
         
-        // 模拟下载功能
-        function downloadWallpaper(id) {
-            const wallpaper = wallpapers.find(w => w.id === id);
-            if (wallpaper) {
-                // 在实际应用中，这里会下载4K版本
-                alert(`开始下载: ${wallpaper.title} (4K超高清版本)`);
-                // 模拟下载
-                setTimeout(() => {
-                    alert(`下载完成: ${wallpaper.title}\n图片已保存到您的设备`);
-                }, 1500);
-            }
-        }
-        
-        // 模拟加载更多壁纸
-        function loadMoreWallpapers() {
-            loadingIndicator.style.display = 'block';
-            scrollHint.style.display = 'none';
-            
-            // 模拟网络请求延迟
-            setTimeout(() => {
-                // 在实际应用中，这里会从API获取更多数据
-                for (let i = 0; i < 4; i++) {
-                    const newId = wallpapers.length + 1;
-                    const newDate = `2023-10-${07 - i}`;
-                    wallpapers.push({
-                        id: newId,
-                        title: `历史壁纸 #${newId}`,
-                        date: newDate,
-                        image: `https://picsum.photos/800/600?random=${newId}`
-                    });
-                }
-                
-                renderWallpapers();
-                loadingIndicator.style.display = 'none';
-                
-                // 显示滚动提示（如果有更多数据）
-                scrollHint.style.display = 'block';
-            }, 1500);
-        }
-        
-        // 滚动事件监听
-        window.addEventListener('scroll', () => {
-            const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-            
-            // 当滚动到底部时加载更多
-            if (scrollTop + clientHeight >= scrollHeight - 100) {
-                loadMoreWallpapers();
-            }
-        });
-        
-        // 初始化页面
-        renderWallpapers();
-    </script>
-</body>
-</html>
+        // 打开4K原图链接（浏览器自动处理下载）
+        function openOriginalImage(url, title) {
