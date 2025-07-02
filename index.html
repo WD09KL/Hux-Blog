@@ -467,16 +467,39 @@ const apiManager = {
     const { thirdparty } = API_CONFIGS;
     const results = [];
 
-    try {
-      // 第一次请求用于获取总数
-      const firstRes = await fetch(
-        `${thirdparty.baseUrl}?key=${thirdparty.apiKey}&per_page=3`
-      );
-      const firstData = await firstRes.json();
-      const totalHits = firstData.totalHits || 5000; // Pixabay免费API最大500页
-      const maxPage = Math.min(Math.floor(totalHits / thirdparty.perPage), 500);
+    // 优先从 state 或 localStorage 读取 totalHits，增加缓存有效期（如7天）
+    let totalHits = state.pixabayTotalHits;
+    const CACHE_KEY = 'pixabayTotalHits';
+    const CACHE_EXPIRE = 7 * 24 * 60 * 60 * 1000; // 7天
 
-      // 随机页码
+    if (!totalHits) {
+      const cached = localStorage.getItem(CACHE_KEY);
+      if (cached) {
+        try {
+          const obj = JSON.parse(cached);
+          if (obj && obj.value && obj.time && (Date.now() - obj.time < CACHE_EXPIRE)) {
+            totalHits = obj.value;
+            state.pixabayTotalHits = totalHits;
+          }
+        } catch (e) {
+          // 解析失败则忽略
+        }
+      }
+    }
+
+    try {
+      // 如果没有缓存或缓存过期，则请求一次 totalHits 并缓存
+      if (!totalHits) {
+        const firstRes = await fetch(
+          `${thirdparty.baseUrl}?key=${thirdparty.apiKey}&per_page=3`
+        );
+        const firstData = await firstRes.json();
+        totalHits = firstData.totalHits || 5000;
+        state.pixabayTotalHits = totalHits;
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ value: totalHits, time: Date.now() }));
+      }
+
+      const maxPage = Math.min(Math.floor(totalHits / thirdparty.perPage), 500);
       const randomPage = Math.floor(Math.random() * maxPage) + 1;
 
       // 用随机页码请求
@@ -493,7 +516,7 @@ const apiManager = {
         itemsToAdd.forEach((item, index) => {
           results.push({
             title: item.tags || `Pixabay壁纸 ${(randomPage-1) * thirdparty.perPage + index + 1}`,
-            date: new Date(item.datetime).toLocaleDateString(),
+            date: '', // Pixabay无日期
             thumb: item.largeImageURL,
             full: item.largeImageURL
           });
