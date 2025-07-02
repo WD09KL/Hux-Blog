@@ -212,7 +212,7 @@
   }
   
   .source-dropdown-content a:hover {
-    background: linear-gradient(90deg, rgba(230, 126, 34, 0.2), rgba(211, 84, 0, 0.2));
+    /* 这里的背景色会被JS动态设置为随机渐变色 */
   }
   
   /* 新增：下拉菜单显示类 */
@@ -337,8 +337,19 @@ const utils = {
   
   // 新增：获取随机颜色主题
   getRandomColorTheme() {
-    const randomIndex = Math.floor(Math.random() * state.colorThemes.length);
-    return state.colorThemes[randomIndex];
+    // 生成两个不同的全范围随机颜色（HEX格式）
+    function randomColor() {
+      return '#' + Math.floor(Math.random() * 0xFFFFFF).toString(16).padStart(6, '0');
+    }
+    let color1 = randomColor();
+    let color2 = randomColor();
+    // 保证两个颜色不完全一样
+    let tryCount = 0;
+    while (color1 === color2 && tryCount < 5) {
+      color2 = randomColor();
+      tryCount++;
+    }
+    return [color1, color2];
   },
   
   // 新增：设置sourceToggle按钮的背景颜色
@@ -772,6 +783,49 @@ const app = {
       state.pageLoaded = true;
     });
   }
+};
+
+// 新增：为下拉菜单hover动态设置随机渐变色
+function setDropdownHoverRandomGradient() {
+  // 生成两个不同的全范围随机颜色
+  function randomColor() {
+    return '#' + Math.floor(Math.random() * 0xFFFFFF).toString(16).padStart(6, '0');
+  }
+  let color1 = randomColor();
+  let color2 = randomColor();
+  let tryCount = 0;
+  while (color1 === color2 && tryCount < 5) {
+    color2 = randomColor();
+    tryCount++;
+  }
+  // 动态插入或更新样式
+  let styleTag = document.getElementById('dropdown-hover-gradient-style');
+  if (!styleTag) {
+    styleTag = document.createElement('style');
+    styleTag.id = 'dropdown-hover-gradient-style';
+    document.head.appendChild(styleTag);
+  }
+  styleTag.textContent = `
+    .source-dropdown-content a:hover {
+      background: linear-gradient(90deg, ${color1}, ${color2});
+    }
+  `;
+}
+
+// 每次下拉菜单打开时设置随机渐变色
+const origDropdownManagerInit = dropdownManager.init;
+dropdownManager.init = function() {
+  this.setupEventListeners();
+  // 初始设置一次
+  setDropdownHoverRandomGradient();
+};
+const origDropdownManagerSetup = dropdownManager.setupEventListeners;
+dropdownManager.setupEventListeners = function() {
+  origDropdownManagerSetup.call(this);
+  elements.sourceToggle.addEventListener('click', () => {
+    if (!state.isDropdownOpen) return;
+    setDropdownHoverRandomGradient();
+  });
 };
 
 // 启动应用
