@@ -368,7 +368,28 @@ const utils = {
     
     // 至少加载一个批次
     return state.cardsPerLoad;
-  }
+  },
+  // 工具函数新增节流
+  throttle(fn, delay = 200) {
+    let last = 0;
+    return function (...args) {
+      const now = Date.now();
+      if (now - last > delay) {
+        last = now;
+        fn.apply(this, args);
+      }
+    };
+  },
+  // 工具函数新增 fetchWithTimeout
+  fetchWithTimeout(resource, options = {}) {
+    const { timeout = 8000 } = options;
+    return Promise.race([
+      fetch(resource, options),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('请求超时')), timeout)
+      )
+    ]);
+  },
 };
 
 // 主题切换功能
@@ -448,7 +469,7 @@ const apiManager = {
     if (official.useProxy) url = official.proxyUrl + encodeURIComponent(url);
     
     try {
-      const res = await fetch(url);
+      const res = await utils.fetchWithTimeout(url);
       const data = await res.json();
       
       return data.images.map(img => ({
@@ -490,7 +511,7 @@ const apiManager = {
     try {
       // 如果没有缓存或缓存过期，则请求一次 totalHits 并缓存
       if (!totalHits) {
-        const firstRes = await fetch(
+        const firstRes = await utils.fetchWithTimeout(
           `${thirdparty.baseUrl}?key=${thirdparty.apiKey}&per_page=3`
         );
         const firstData = await firstRes.json();
@@ -503,7 +524,7 @@ const apiManager = {
       const randomPage = Math.floor(Math.random() * maxPage) + 1;
 
       // 用随机页码请求
-      const response = await fetch(
+      const response = await utils.fetchWithTimeout(
         `${thirdparty.baseUrl}?key=${thirdparty.apiKey}&per_page=${thirdparty.perPage}&page=${randomPage}`
       );
       const data = await response.json();
@@ -585,19 +606,21 @@ const apiManager = {
 // 壁纸渲染管理
 const renderManager = {
   renderWallpapers(wallpapers) {
+    const fragment = document.createDocumentFragment();
     wallpapers.forEach(wp => {
       const card = document.createElement('div');
       card.className = 'wallpaper-card';
       card.innerHTML = `
-        <img src="${wp.thumb}" alt="${wp.title}" 
+        <img src="${wp.thumb}" alt="${wp.title}" loading="lazy"
              onerror="this.src='${utils.createErrorImage()}'">
       `;
       card.addEventListener('click', () => {
         window.open(wp.full, '_blank');
       });
-      elements.wallpaperContainer.appendChild(card);
+      fragment.appendChild(card);
       state.loadedCards++;
     });
+    elements.wallpaperContainer.appendChild(fragment);
   },
   
   reset() {
@@ -613,8 +636,8 @@ const renderManager = {
 // 滚动加载管理
 const scrollManager = {
   init() {
-    window.addEventListener('scroll', this.handleScroll.bind(this));
-    window.addEventListener('resize', this.handleResize.bind(this));
+    window.addEventListener('scroll', utils.throttle(this.handleScroll.bind(this), 200));
+    window.addEventListener('resize', utils.throttle(this.handleResize.bind(this), 300));
   },
   
   handleScroll() {
