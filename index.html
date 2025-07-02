@@ -4,7 +4,6 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>超清壁纸</title>
-<!-- 引入行楷字体（Ma Shan Zheng） -->
 <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -13,9 +12,14 @@
     --primary-color: #e67e22;
     --secondary-color: #d35400;
     --accent-color: #f39c12;
+    --sky-blue: #40a9ff;
+    --autumn-color-1: #e67e22; /* 橙色 */
+    --autumn-color-2: #d35400; /* 深橙色 */
+    --autumn-color-3: #f39c12; /* 金黄色 */
+    --autumn-color-4: #e74c3c; /* 红色 */
+    --autumn-color-5: #8e44ad; /* 紫色 */
   }
 
-  /* 全局背景、字体、过渡动画 */
   body {
     background: var(--bg-color);
     color: var(--text-color);
@@ -25,7 +29,6 @@
     transition: background 0.5s ease, color 0.5s ease;
   }
 
-  /* 壁纸卡片样式 */
   .wallpaper-card {
     position: relative;
     cursor: pointer;
@@ -49,27 +52,6 @@
     transform: scale(1.05);
   }
 
-  /* 加载更多按钮样式 */
-  #loadMoreBtn {
-    display: block;
-    margin: 20px auto;
-    padding: 12px 25px;
-    border: none;
-    border-radius: 30px;
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    color: white;
-    font-weight: bold;
-    font-family: inherit;
-    cursor: pointer;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    transition: all 0.3s ease;
-  }
-  #loadMoreBtn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
-  }
-
-  /* 悬浮控制按钮容器 */
   .floating-controls {
     position: fixed;
     bottom: 30px;
@@ -79,7 +61,8 @@
     gap: 15px;
     z-index: 100;
   }
-  /* 主题切换和壁纸源切换按钮样式，保证大小一致 */
+  
+  /* 统一三个按钮的基本样式 */
   .theme-toggle,
   .source-toggle {
     width: 100px;
@@ -95,24 +78,21 @@
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
   }
-  /* 主题切换按钮默认样式（白底黑字） */
+  
+  /* 主题切换按钮样式 */
   .theme-toggle {
     background: #fff;
     color: #222;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     border: none;
-    overflow: hidden;
   }
-  /* 主题切换按钮在浅色模式下（黑底白字） */
   body.light-mode .theme-toggle {
     background: #222;
     color: #fff;
   }
-  /* 主题切换按钮的圆球（夜/昼） */
   .theme-toggle .toggle-ball {
-    background-color: #40a9ff; /* 天蓝色 */
-    box-shadow: 0 2px 6px rgba(64,169,255,0.2);
     position: absolute;
     left: 3px;
     top: 3px;
@@ -122,20 +102,6 @@
     transition: transform 0.3s cubic-bezier(.4,2.08,.55,.44), background 0.3s;
     z-index: 2;
   }
-  /* 壁纸源切换按钮样式 */
-  .source-toggle {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    color: white;
-    border: none;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    text-align: center;
-  }
-  /* 按钮悬浮放大效果 */
-  .theme-toggle:hover,
-  .source-toggle:hover {
-    transform: scale(1.05);
-  }
-  /* 主题切换按钮文字（黑/白）布局 */
   .theme-text {
     position: absolute;
     width: 100%;
@@ -159,49 +125,121 @@
   .theme-text .light-text {
     color: black;
   }
-  /* 浅色模式下变量和主题球位置 */
   body.light-mode {
     --bg-color: #f5f5f5;
     --text-color: #333;
     background: var(--bg-color);
   }
   body.light-mode .theme-toggle .toggle-ball {
-    background-color: #40a9ff;
-    transform: translateX(60px); /* 球滑到右侧 */
+    transform: translateX(60px);
   }
   .theme-toggle .toggle-ball {
-    transform: translateX(0); /* 球在左侧 */
+    transform: translateX(0);
   }
 
-  /* 壁纸容器采用响应式网格布局，自动适应屏幕宽度 */
+  /* 壁纸源选择按钮样式 */
+  .source-toggle {
+    background: #fff;
+    color: #222;
+    border: none;
+  }
+  .source-toggle::after {
+    content: '▼';
+    margin-left: 5px;
+    font-size: 10px;
+    z-index: 2;
+    position: relative;
+  }
+  .source-toggle-text {
+    z-index: 2;
+    position: relative;
+  }
+  .source-toggle-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--autumn-color-1), var(--autumn-color-2));
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 1;
+  }
+  .source-toggle:hover .source-toggle-bg {
+    transform: translateX(0);
+  }
+  .source-toggle:hover {
+    color: white;
+  }
+
   .wallpaper-container {
-    display: grid; /* 使用CSS Grid布局 */
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); /* 自动填充，每列最小240px，最大1fr */
-    gap: 10px; /* 卡片间距 */
-    padding: 10px 3vw 10px 3vw; /* 上左右下内边距，左右为视口宽度的3% */
-    max-width: 3600px; /* 最大宽度限制 */
-    margin: 0 auto; /* 居中显示 */
-    box-sizing: border-box; /* 包含内边距和边框 */
-    align-items: stretch; /* 卡片高度拉伸对齐 */
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 10px;
+    padding: 10px 3vw 10px 3vw;
+    max-width: 3600px;
+    margin: 0 auto;
+    box-sizing: border-box;
+    align-items: stretch;
   }
 
-
+  /* 壁纸源下拉菜单样式 */
+  .source-dropdown {
+    position: relative;
+  }
   
+  .source-dropdown-content {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    margin-bottom: 10px;
+    background-color: var(--bg-color);
+    min-width: 120px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 101;
+    transition: all 0.3s ease;
+  }
+  
+  .source-dropdown-content a {
+    color: var(--text-color);
+    padding: 10px 15px;
+    text-decoration: none;
+    display: block;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+  }
+  
+  .source-dropdown-content a:hover {
+    background: linear-gradient(90deg, rgba(230, 126, 34, 0.2), rgba(211, 84, 0, 0.2));
+  }
+  
+  /* 新增：下拉菜单显示类 */
+  .source-dropdown-content.show {
+    display: block;
+  }
 </style>
 </head>
 <body>
 
-<!-- 壁纸展示区 -->
 <div class="wallpaper-container" id="wallpaperContainer"></div>
 
-<!-- 加载更多按钮 -->
-<button id="loadMoreBtn" style="display:none">
-  <span class="btn-text">加载更多壁纸</span>
-</button>
-
-<!-- 悬浮控制按钮：壁纸源切换、主题切换 -->
 <div class="floating-controls">
-  <div class="source-toggle" id="sourceToggle">超清壁纸</div>
+  <!-- 壁纸源下拉菜单 -->
+  <div class="source-dropdown">
+    <div class="source-toggle" id="sourceToggle">
+      <span class="source-toggle-text">选择壁纸源</span>
+      <div class="source-toggle-bg"></div>
+    </div>
+    <div class="source-dropdown-content" id="sourceDropdown">
+      <a href="#" data-type="upx8">超清壁纸</a>
+      <a href="#" data-type="official">Bing壁纸</a>
+      <a href="#" data-type="thirdparty">Pixabay</a>
+    </div>
+  </div>
+  
+  <!-- 主题切换按钮 -->
   <div class="theme-toggle" id="themeToggle">
     <div class="toggle-ball"></div>
     <div class="theme-text">
@@ -212,168 +250,464 @@
 </div>
 
 <script>
-// 获取页面元素
-const wallpaperContainer = document.getElementById('wallpaperContainer');
-const loadMoreBtn = document.getElementById('loadMoreBtn');
-const sourceToggle = document.getElementById('sourceToggle');
-const themeToggle = document.getElementById('themeToggle');
-
-// Bing官方API配置
-const OFFICIAL_API = {
-  type: "official",
-  baseUrl: "https://cn.bing.com",
-  apiPath: "/HPImageArchive.aspx",
-  params: { format: "js", idx: 0, n: 8, mkt: "zh-CN" },
-  imageBaseUrl: "https://cn.bing.com",
-  useProxy: true,
-  proxyUrl: "https://api.allorigins.win/raw?url="
+// 应用状态管理
+const state = {
+  currentApi: null,
+  thirdPartyIndex: 0,
+  bingPageIndex: 0,
+  upx8CurrentIndex: 1,
+  wallpapers: [],
+  isLightMode: false,
+  isLoading: false,
+  // 新增：下拉菜单状态
+  isDropdownOpen: false,
+  // 新增：颜色主题数组
+  colorThemes: [
+    ['#e67e22', '#d35400'], // 橙色系
+    ['#40a9ff', '#1890ff'], // 天蓝色系
+    ['#9b59b6', '#8e44ad'], // 紫色系
+    ['#2ecc71', '#27ae60'], // 绿色系
+    ['#e74c3c', '#c0392b']  // 红色系
+  ],
+  // 当前颜色主题索引
+  currentColorIndex: 0,
+  // 主题按钮颜色索引
+  themeColorIndex: 0,
+  // 页面加载完成标志
+  pageLoaded: false,
+  // 记录已加载的卡片数量
+  loadedCards: 0,
+  // 每次加载的卡片数量
+  cardsPerLoad: 16,
+  // 加载更多阈值（页面底部剩余像素）
+  loadThreshold: 300
 };
 
-// 第三方壁纸API（超清壁纸，直接图片接口）
-const THIRDPARTYAPI = {
-  type: "thirdparty"
+// API配置
+const API_CONFIGS = {
+  official: {
+    type: "official",
+    baseUrl: "https://cn.bing.com",
+    apiPath: "/HPImageArchive.aspx",
+    params: { format: "js", idx: 0, n: 8, mkt: "zh-CN" },
+    imageBaseUrl: "https://cn.bing.com",
+    useProxy: true,
+    proxyUrl: "https://api.allorigins.win/raw?url="
+  },
+  thirdparty: {
+    type: "thirdparty",
+    apiKey: "51138095-799c800606b8caadc071fcb56",
+    baseUrl: "https://pixabay.com/api/",
+    perPage: 100 // 每次请求的最大数量
+  },
+  upx8: {
+    type: "upx8",
+    baseUrl: "https://wp.upx8.com",
+    apiPath: "/api.php"
+  }
 };
 
-let currentApi = OFFICIAL_API; // 当前壁纸源
-let currentIndex = 0;          // 第三方壁纸的索引
-let wallpapers = [];           // 当前已加载的壁纸
-let isLightMode = false;       // 当前主题模式
+// DOM元素引用
+const elements = {
+  wallpaperContainer: document.getElementById('wallpaperContainer'),
+  sourceToggle: document.getElementById('sourceToggle'),
+  themeToggle: document.getElementById('themeToggle'),
+  sourceDropdown: document.getElementById('sourceDropdown'),
+  sourceDropdownContent: document.querySelector('.source-dropdown-content'),
+  sourceToggleText: document.querySelector('.source-toggle-text'),
+  sourceToggleBg: document.querySelector('.source-toggle-bg'),
+  toggleBall: document.querySelector('.toggle-ball')
+};
+
+// 工具函数
+const utils = {
+  formatDate(str) {
+    if (!str || str.length !== 8) return '';
+    return `${str.slice(0,4)}-${str.slice(4,6)}-${str.slice(6)}`;
+  },
+  
+  createErrorImage() {
+    return 'data:image/svg+xml;charset=utf-8,%3Csvg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 width%3D%22200%22 height%3D%22150%22 viewBox%3D%220 0 200 150%22%3E%3Crect fill%3D%22%23333%22 width%3D%22200%22 height%3D%22150%22%2F%3E%3Ctext fill%3D%22%23999%22 font-family%3D%22Arial%22 font-size%3D%2212%22 x%3D%22100%22 y%3D%2275%22 text-anchor%3D%22middle%22%3E图片加载失败%3C%2Ftext%3E%3C%2Fsvg%3E';
+  },
+  
+  // 新增：获取随机颜色主题
+  getRandomColorTheme() {
+    const randomIndex = Math.floor(Math.random() * state.colorThemes.length);
+    return state.colorThemes[randomIndex];
+  },
+  
+  // 新增：设置sourceToggle按钮的背景颜色
+  setSourceToggleColor(colors) {
+    elements.sourceToggleBg.style.background = `linear-gradient(135deg, ${colors[0]}, ${colors[1]})`;
+    state.currentColorIndex = state.colorThemes.findIndex(theme => 
+      theme[0] === colors[0] && theme[1] === colors[1]
+    );
+  },
+  
+  // 新增：设置主题按钮圆球的颜色
+  setThemeToggleBallColor(colors) {
+    elements.toggleBall.style.background = `linear-gradient(135deg, ${colors[0]}, ${colors[1]})`;
+    state.themeColorIndex = state.colorThemes.findIndex(theme => 
+      theme[0] === colors[0] && theme[1] === colors[1]
+    );
+  },
+  
+  // 计算需要加载的卡片数量，以填满可视区域
+  calculateCardsNeeded() {
+    const cardHeight = 160 + 10; // 卡片高度 + 间隙
+    const visibleHeight = window.innerHeight;
+    const containerHeight = elements.wallpaperContainer.offsetHeight;
+    const cardsPerRow = Math.floor(elements.wallpaperContainer.offsetWidth / 240);
+    
+    // 如果容器高度小于可视区域，计算需要多少卡片才能填满
+    if (containerHeight < visibleHeight) {
+      const requiredHeight = visibleHeight - containerHeight;
+      const rowsNeeded = Math.ceil(requiredHeight / cardHeight);
+      return rowsNeeded * cardsPerRow;
+    }
+    
+    // 至少加载一个批次
+    return state.cardsPerLoad;
+  }
+};
 
 // 主题切换功能
-themeToggle.addEventListener('click', () => {
-  isLightMode = !isLightMode;
-  document.body.classList.toggle('light-mode', isLightMode);
-  localStorage.setItem('themePreference', isLightMode ? 'light' : 'dark');
-});
-
-// 壁纸源切换功能
-sourceToggle.addEventListener('click', () => {
-  if (currentApi.type === "official") {
-    currentApi = THIRDPARTYAPI;
-    sourceToggle.textContent = "Bing壁纸";
-  } else {
-    currentApi = OFFICIAL_API;
-    sourceToggle.textContent = "超清壁纸";
+const themeManager = {
+  init() {
+    const savedTheme = localStorage.getItem('themePreference');
+    state.isLightMode = savedTheme === 'light';
+    document.body.classList.toggle('light-mode', state.isLightMode);
+    
+    // 初始化主题按钮颜色
+    const initialThemeColor = utils.getRandomColorTheme();
+    utils.setThemeToggleBallColor(initialThemeColor);
+    
+    this.setupEventListeners();
+  },
+  
+  setupEventListeners() {
+    elements.themeToggle.addEventListener('click', () => {
+      state.isLightMode = !state.isLightMode;
+      document.body.classList.toggle('light-mode', state.isLightMode);
+      localStorage.setItem('themePreference', state.isLightMode ? 'light' : 'dark');
+      
+      // 切换时随机变换颜色
+      const randomColors = utils.getRandomColorTheme();
+      utils.setThemeToggleBallColor(randomColors);
+    });
   }
-  resetAndLoadWallpapers();
-});
+};
 
-// 初始化主题（根据本地存储）
-function initTheme() {
-  const savedTheme = localStorage.getItem('themePreference');
-  if (savedTheme === 'light') {
-    isLightMode = true;
-    document.body.classList.add('light-mode');
+// 下拉菜单管理
+const dropdownManager = {
+  init() {
+    this.setupEventListeners();
+  },
+  
+  setupEventListeners() {
+    // 点击源切换按钮时切换下拉菜单显示状态
+    elements.sourceToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.isDropdownOpen = !state.isDropdownOpen;
+      elements.sourceDropdownContent.classList.toggle('show', state.isDropdownOpen);
+      
+      // 切换时随机变换颜色
+      if (state.isDropdownOpen) {
+        const randomColors = utils.getRandomColorTheme();
+        utils.setSourceToggleColor(randomColors);
+      }
+    });
+    
+    // 点击下拉菜单外部时关闭菜单
+    document.addEventListener('click', () => {
+      if (state.isDropdownOpen) {
+        state.isDropdownOpen = false;
+        elements.sourceDropdownContent.classList.remove('show');
+      }
+    });
+    
+    // 阻止下拉菜单内部的点击事件冒泡到document
+    elements.sourceDropdownContent.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
   }
-}
-initTheme();
+};
 
-// 加载更多按钮事件
-loadMoreBtn.addEventListener('click', () => loadWallpapers());
-
-// 页面加载完成后自动加载壁纸
-document.addEventListener('DOMContentLoaded', () => {
-  resetAndLoadWallpapers();
-});
-
-// 重置并加载壁纸
-function resetAndLoadWallpapers() {
-  wallpapers = [];
-  currentIndex = 0;
-  wallpaperContainer.innerHTML = '';
-  loadMoreBtn.style.display = currentApi.type === 'thirdparty' ? 'block' : 'none';
-  loadWallpapers();
-}
-
-// 加载壁纸（根据当前源）
-async function loadWallpapers() {
-  loadMoreBtn.disabled = true;
-  let newWallpapers = [];
-  try {
-    if (currentApi.type === 'official') {
-      newWallpapers = await fetchOfficialWallpapers();
-    } else {
-      newWallpapers = await fetchThirdPartyWallpapers();
+// 壁纸API管理
+const apiManager = {
+  async fetchOfficialWallpapers(count = 8) {
+    const { official } = API_CONFIGS;
+    const params = new URLSearchParams({
+      ...official.params, 
+      idx: state.bingPageIndex, 
+      n: count
+    });
+    state.bingPageIndex += count;
+    
+    let url = `${official.baseUrl}${official.apiPath}?${params}`;
+    if (official.useProxy) url = official.proxyUrl + encodeURIComponent(url);
+    
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+      
+      return data.images.map(img => ({
+        title: img.title || img.copyright || "Bing壁纸",
+        date: utils.formatDate(img.enddate),
+        thumb: `${official.imageBaseUrl}${img.url}`,
+        full: `${official.imageBaseUrl}${img.urlbase}_UHD.jpg`
+      }));
+    } catch (error) {
+      console.error('获取Bing壁纸失败:', error);
+      return [];
     }
-    wallpapers = wallpapers.concat(newWallpapers);
-    renderWallpapers(newWallpapers);
-  } catch (e) {
-    console.error(e);
-  } finally {
-    loadMoreBtn.disabled = false;
+  },
+  
+  async fetchThirdPartyWallpapers(count = 8) {
+    const { thirdparty } = API_CONFIGS;
+    const results = [];
+
+    try {
+      // 计算需要请求的页面数
+      const pagesNeeded = Math.ceil(count / thirdparty.perPage);
+      let fetchedCount = 0;
+      
+      for (let i = 0; i < pagesNeeded && fetchedCount < count; i++) {
+        const page = state.thirdPartyIndex + i + 1;
+        const response = await fetch(
+          `${thirdparty.baseUrl}?key=${thirdparty.apiKey}&per_page=${thirdparty.perPage}&page=${page}`
+        );
+        const data = await response.json();
+
+        if (data.hits && data.hits.length > 0) {
+          const remaining = count - fetchedCount;
+          const itemsToAdd = data.hits.slice(0, remaining);
+          
+          itemsToAdd.forEach((item, index) => {
+            results.push({
+              title: item.tags || `Pixabay壁纸 ${(page-1) * thirdparty.perPage + index + 1}`,
+              date: new Date(item.datetime).toLocaleDateString(),
+              thumb: item.largeImageURL,
+              full: item.largeImageURL
+            });
+          });
+          
+          fetchedCount += itemsToAdd.length;
+        } else {
+          // 没有更多图片了
+          break;
+        }
+      }
+      
+      state.thirdPartyIndex += pagesNeeded;
+    } catch (error) {
+      console.error("获取Pixabay壁纸失败：", error);
+    }
+
+    return results;
+  },
+  
+  fetchUpx8Wallpapers(count = 8) {
+    const { upx8 } = API_CONFIGS;
+    const results = [];
+    
+    for (let i = 0; i < count; i++) {
+      const randomParam = state.upx8CurrentIndex + i;
+      
+      const thumbUrl = `${upx8.baseUrl}${upx8.apiPath}/200/150?random=${randomParam}`;
+      const fullUrl = `${upx8.baseUrl}${upx8.apiPath}/800/600?random=${randomParam}`;
+      
+      results.push({
+        title: `超清壁纸 ${randomParam}`,
+        date: '',
+        thumb: thumbUrl,
+        full: fullUrl
+      });
+    }
+    
+    state.upx8CurrentIndex += count;
+    return results;
+  },
+  
+  async fetchWallpapers(count = 8) {
+    if (state.isLoading) return [];
+    
+    state.isLoading = true;
+    
+    let newWallpapers = [];
+    try {
+      if (state.currentApi === API_CONFIGS.official) {
+        newWallpapers = await this.fetchOfficialWallpapers(count);
+      } else if (state.currentApi === API_CONFIGS.thirdparty) {
+        newWallpapers = await this.fetchThirdPartyWallpapers(count);
+      } else if (state.currentApi === API_CONFIGS.upx8) {
+        newWallpapers = this.fetchUpx8Wallpapers(count);
+      }
+      
+      state.wallpapers = [...state.wallpapers, ...newWallpapers];
+      
+      // 随机变换源按钮颜色
+      const randomColors = utils.getRandomColorTheme();
+      utils.setSourceToggleColor(randomColors);
+      
+    } catch (error) {
+      console.error('加载壁纸失败:', error);
+    } finally {
+      state.isLoading = false;
+    }
+    
+    return newWallpapers;
   }
-}
+};
 
-// 获取Bing官方壁纸
-async function fetchOfficialWallpapers() {
-  const params = new URLSearchParams({...currentApi.params, idx: 0, n: 8});
-  let url = `${currentApi.baseUrl}${currentApi.apiPath}?${params}`;
-  if (currentApi.useProxy) url = currentApi.proxyUrl + encodeURIComponent(url);
-  const res = await fetch(url);
-  const data = await res.json();
-  return data.images.map(img => {
-    const base = img.urlbase;
-    return {
-      title: img.title || img.copyright || "Bing壁纸",
-      date: formatDate(img.enddate),
-      thumb: `${currentApi.imageBaseUrl}${img.url}`,
-      full: `${currentApi.imageBaseUrl}${base}_UHD.jpg`
-    };
-  });
-}
+// 壁纸渲染管理
+const renderManager = {
+  renderWallpapers(wallpapers) {
+    wallpapers.forEach(wp => {
+      const card = document.createElement('div');
+      card.className = 'wallpaper-card';
+      card.innerHTML = `
+        <img src="${wp.thumb}" alt="${wp.title}" 
+             onerror="this.src='${utils.createErrorImage()}'">
+      `;
+      card.addEventListener('click', () => {
+        window.open(wp.full, '_blank');
+      });
+      elements.wallpaperContainer.appendChild(card);
+      state.loadedCards++;
+    });
+  },
+  
+  reset() {
+    elements.wallpaperContainer.innerHTML = '';
+    state.wallpapers = [];
+    state.thirdPartyIndex = 0;
+    state.bingPageIndex = 0;
+    state.upx8CurrentIndex = 1;
+    state.loadedCards = 0;
+  }
+};
 
-// 获取第三方超清壁纸（每次加载8张，使用不同随机参数）
-async function fetchThirdPartyWallpapers() {
-  const count = 8;
-  const results = [];
-  for (let i = 0; i < count; i++) {
-    const randomParam = currentIndex + i;
-    // 缩略图和大图接口
-    const thumbUrl = `https://wp.upx8.com/api.php/200/150?random=${randomParam}`;
-    const fullUrl = `https://wp.upx8.com/api.php/800/600?random=${randomParam}`;
-    results.push({
-      title: `超清壁纸 ${randomParam}`,
-      date: '',
-      thumb: thumbUrl,
-      full: fullUrl
+// 滚动加载管理
+const scrollManager = {
+  init() {
+    window.addEventListener('scroll', this.handleScroll.bind(this));
+    window.addEventListener('resize', this.handleResize.bind(this));
+  },
+  
+  handleScroll() {
+    // 检查是否滚动到页面底部附近
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - state.loadThreshold &&
+        !state.isLoading) {
+      // 计算需要加载的卡片数量，以填满可视区域
+      const cardsNeeded = utils.calculateCardsNeeded();
+      if (cardsNeeded > 0) {
+        apiManager.fetchWallpapers(cardsNeeded).then(newWallpapers => {
+          renderManager.renderWallpapers(newWallpapers);
+        });
+      }
+    }
+  },
+  
+  handleResize() {
+    // 窗口大小变化时，检查是否需要加载更多卡片以填满可视区域
+    if (!state.isLoading) {
+      const cardsNeeded = utils.calculateCardsNeeded();
+      if (cardsNeeded > 0) {
+        apiManager.fetchWallpapers(cardsNeeded).then(newWallpapers => {
+          renderManager.renderWallpapers(newWallpapers);
+        });
+      }
+    }
+  }
+};
+
+// 应用初始化和控制
+const app = {
+  init() {
+    // 初始化颜色
+    const initialColors = utils.getRandomColorTheme();
+    utils.setSourceToggleColor(initialColors);
+    
+    themeManager.init();
+    dropdownManager.init();
+    scrollManager.init(); // 初始化滚动管理
+    this.setupEventListeners();
+    
+    // 随机选择一个壁纸源
+    this.selectRandomSource();
+  },
+  
+  setupEventListeners() {
+    // 监听下拉菜单选项点击事件
+    elements.sourceDropdown.querySelectorAll('a').forEach(option => {
+      option.addEventListener('click', (e) => {
+        e.preventDefault();
+        const type = option.dataset.type;
+        
+        // 更新当前来源
+        if (type === 'official') {
+          state.currentApi = API_CONFIGS.official;
+        } else if (type === 'thirdparty') {
+          state.currentApi = API_CONFIGS.thirdparty;
+        } else if (type === 'upx8') {
+          state.currentApi = API_CONFIGS.upx8;
+        }
+        
+        // 更新按钮文字
+        elements.sourceToggleText.textContent = option.textContent;
+        
+        // 关闭下拉菜单
+        state.isDropdownOpen = false;
+        elements.sourceDropdownContent.classList.remove('show');
+        
+        // 重新加载壁纸
+        this.loadInitialWallpapers();
+      });
+    });
+  },
+  
+  selectRandomSource() {
+    // 随机选择一个壁纸源
+    const sources = ['upx8', 'official', 'thirdparty'];
+    const randomSource = sources[Math.floor(Math.random() * sources.length)];
+    
+    // 更新当前来源
+    if (randomSource === 'official') {
+      state.currentApi = API_CONFIGS.official;
+      elements.sourceToggleText.textContent = 'Bing壁纸';
+    } else if (randomSource === 'thirdparty') {
+      state.currentApi = API_CONFIGS.thirdparty;
+      elements.sourceToggleText.textContent = 'Pixabay';
+    } else if (randomSource === 'upx8') {
+      state.currentApi = API_CONFIGS.upx8;
+      elements.sourceToggleText.textContent = '超清壁纸';
+    }
+    
+    // 加载初始壁纸
+    this.loadInitialWallpapers();
+  },
+  
+  loadInitialWallpapers() {
+    // 如果用户还没有选择壁纸源，则不加载任何内容
+    if (!state.currentApi) return;
+    
+    renderManager.reset();
+    
+    // 计算初始需要加载的卡片数量，以填满可视区域
+    const initialCardsNeeded = utils.calculateCardsNeeded();
+    
+    apiManager.fetchWallpapers(initialCardsNeeded).then(newWallpapers => {
+      renderManager.renderWallpapers(newWallpapers);
+      state.pageLoaded = true;
     });
   }
-  currentIndex += count;
-  return results;
-}
+};
 
-// 渲染壁纸到页面
-function renderWallpapers(list) {
-  list.forEach(wp => {
-    const card = document.createElement('div');
-    card.className = 'wallpaper-card';
-    card.innerHTML = `
-      <img src="${wp.thumb}" alt="${wp.title}" 
-           onerror="this.src='data:image/svg+xml;charset=utf-8,%3Csvg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 width%3D%22200%22 height%3D%22150%22 viewBox%3D%220 0 200 150%22%3E%3Crect fill%3D%22%23333%22 width%3D%22200%22 height%3D%22150%22%2F%3E%3Ctext fill%3D%22%23999%22 font-family%3D%22Arial%22 font-size%3D%2212%22 x%3D%22100%22 y%3D%2275%22 text-anchor%3D%22middle%22%3E图片加载中%3C%2Ftext%3E%3C%2Fsvg%3E'">
-    `;
-    card.addEventListener('click', () => {
-      window.open(wp.full, '_blank');
-    });
-    wallpaperContainer.appendChild(card);
-  });
-}
-
-// 格式化日期（Bing壁纸专用）
-function formatDate(str) {
-  if (!str) return '';
-  return str.length === 8 ? `${str.slice(0,4)}-${str.slice(4,6)}-${str.slice(6)}` : str;
-}
-
-// 滚动到底部自动加载更多（仅第三方壁纸源）
-window.addEventListener('scroll', () => {
-  if (
-    currentApi.type === 'thirdparty' &&
-    window.innerHeight + window.scrollY >= document.body.offsetHeight - 100 &&
-    !loadMoreBtn.disabled
-  ) {
-    loadWallpapers();
-  }
+// 启动应用
+document.addEventListener('DOMContentLoaded', () => {
+  app.init();
 });
 </script>
 </body>
-</html>
+</html>    
