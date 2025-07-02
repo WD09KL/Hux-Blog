@@ -468,38 +468,37 @@ const apiManager = {
     const results = [];
 
     try {
-      // 计算需要请求的页面数
-      const pagesNeeded = Math.ceil(count / thirdparty.perPage);
-      let fetchedCount = 0;
-      
-      for (let i = 0; i < pagesNeeded && fetchedCount < count; i++) {
-        const page = state.thirdPartyIndex + i + 1;
-        const response = await fetch(
-          `${thirdparty.baseUrl}?key=${thirdparty.apiKey}&per_page=${thirdparty.perPage}&page=${page}`
-        );
-        const data = await response.json();
+      // 第一次请求用于获取总数
+      const firstRes = await fetch(
+        `${thirdparty.baseUrl}?key=${thirdparty.apiKey}&per_page=3`
+      );
+      const firstData = await firstRes.json();
+      const totalHits = firstData.totalHits || 5000; // Pixabay免费API最大500页
+      const maxPage = Math.min(Math.floor(totalHits / thirdparty.perPage), 500);
 
-        if (data.hits && data.hits.length > 0) {
-          const remaining = count - fetchedCount;
-          const itemsToAdd = data.hits.slice(0, remaining);
-          
-          itemsToAdd.forEach((item, index) => {
-            results.push({
-              title: item.tags || `Pixabay壁纸 ${(page-1) * thirdparty.perPage + index + 1}`,
-              date: new Date(item.datetime).toLocaleDateString(),
-              thumb: item.largeImageURL,
-              full: item.largeImageURL
-            });
+      // 随机页码
+      const randomPage = Math.floor(Math.random() * maxPage) + 1;
+
+      // 用随机页码请求
+      const response = await fetch(
+        `${thirdparty.baseUrl}?key=${thirdparty.apiKey}&per_page=${thirdparty.perPage}&page=${randomPage}`
+      );
+      const data = await response.json();
+
+      if (data.hits && data.hits.length > 0) {
+        // 随机选取count个壁纸
+        const shuffled = data.hits.sort(() => 0.5 - Math.random());
+        const itemsToAdd = shuffled.slice(0, count);
+
+        itemsToAdd.forEach((item, index) => {
+          results.push({
+            title: item.tags || `Pixabay壁纸 ${(randomPage-1) * thirdparty.perPage + index + 1}`,
+            date: new Date(item.datetime).toLocaleDateString(),
+            thumb: item.largeImageURL,
+            full: item.largeImageURL
           });
-          
-          fetchedCount += itemsToAdd.length;
-        } else {
-          // 没有更多图片了
-          break;
-        }
+        });
       }
-      
-      state.thirdPartyIndex += pagesNeeded;
     } catch (error) {
       console.error("获取Pixabay壁纸失败：", error);
     }
@@ -710,4 +709,4 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 </body>
-</html>    
+</html>
